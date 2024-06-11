@@ -1,3 +1,4 @@
+/* Befintliga stilar */
 body, html {
     height: 100%;
     margin: 0;
@@ -30,7 +31,6 @@ body, html {
     width: 90%;
     text-align: center;
     margin: 20px;
-    opacity: 0;
     animation: fadeIn 1s forwards;
 }
 
@@ -38,6 +38,13 @@ h1 {
     color: #00796b;
     font-size: 24px;
     margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    color: #333;
+    font-size: 16px;
 }
 
 input {
@@ -83,4 +90,11 @@ input:focus {
 @keyframes fadeIn {
     0% { opacity: 0; }
     100% { opacity: 1; }
+}
+
+/* Nya stilar för kalkylformuläret */
+#message {
+    margin-top: 20px;
+    color: #00796b;
+    font-size: 18px;
 }
