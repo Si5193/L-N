@@ -21,6 +21,12 @@ body, html {
     transform: translate(-50%, -50%);
 }
 
+#lottie-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .container {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
@@ -31,7 +37,7 @@ body, html {
     text-align: center;
     margin: 20px;
     opacity: 0;
-    animation: fadeIn 1s forwards 1.2s;
+    transition: opacity 1s;
 }
 
 h1 {
