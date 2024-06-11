@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provision Uträkning med Besöksräknare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+        }
+        .bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+        }
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            margin: 20px auto;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s forwards;
+        }
+
+        h1 {
+            color: #00796b;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #b2dfdb;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #004d40;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #00796b;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #004d40;
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .result, .info, .weather {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #004d40;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        .motivation {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #00796b;
+            font-style: italic;
+        }
+
+        .section-divider {
+            border-top: 1px solid #b2dfdb;
+            margin: 20px 0;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .highlight-green {
+            color: green;
+        }
+
+        .highlight-red {
+            color: red;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            button {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .visitor-counter {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            color: #00796b;
+        }
+    </style>
+</head>
+<body>
+    <video id="bg-video" autoplay muted loop playsinline class="bg-video">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="loading-container" id="loading-container">
+        <dotlottie-player src="https://lottie.host/925fffcd-77b4-42aa-b423-a57c32e800bf/hBb6pUIMQA.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+    </div>
+
+    <div class="container" id="leaveContainer">
+        <h1>Beräkna lön efter sjukfrånvaro eller VAB</h1>
+        <form id="leaveForm">
+            <label for="salary" aria-label="Ange din månadslön före frånvaro">Månadslön:</label>
+            <input type="number" id="salary" required>
+
+            <label for="leaveDays" title="Ange antalet frånvarodagar">Antal dagar:</label>
+            <input type="number" id="leaveDays" required>
+
+            <label for="leaveType" title="Välj typ av frånvaro">Typ av frånvaro:</label>
+            <select id="leaveType" required>
+                <option value="sick">Sjukdag</option>
+                <option value="vab">VAB</option>
+            </select>
+
+            <div class="button-group">
+                <button type="button" onclick="calculateLeave()">Beräkna</button>
+                <button type="button" onclick="noLeave()">Ingen frånvaro</button>
+            </div>
+        </form>
+        <div class="result" id="leaveResult"></div>
+    </div>
+
+    <div class="container hidden" id="provisionContainer">
+        <h1>Beräkna din provision</h1>
+        <form id="provisionForm">
+            <label for="daysWorked" title="Ange antalet dagar du har arbetat">Antal dagar arbetat (inkl. röda dagar):</label>
+            <input type="number" id="daysWorked" required>
+
+            <label for="revenue" title="Ange din totala omsättning">Omsättningsbelopp:</label>
+            <input type="number" id="revenue" required>
+
+            <label for="monthlySalary" title="Din månadslön efter frånvaro" aria-label="Din månadslön efter frånvaro">Månadslön:</label>
+            <input type="number" id="monthlySalary" required readonly>
+
+            <button type="button" onclick="startCalculation()">Beräkna</button>
+        </form>
+    </div>
+
+    <div class="container hidden" id="resultContainer">
+        <h1>Resultat</h1>
+        <div class="result" id="result"></div>
+        <div class="info" id="info"></div>
+        <div class="motivation" id="motivation"></div>
+    </div>
+
+    <div class="visitor-counter" id="visitorCounter">Besökare: 0</div>
+
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0M-i21bF1HnjThFqacN9FJ8pUageNmP4",
+            authDomain: "provsion1.firebaseapp.com",
+            projectId: "provsion1",
+            storageBucket: "provsion1.appspot.com",
+            messagingSenderId: "654596923762",
+            appId: "1:654596923762:web:c2997f482c8e2bdaa2fdeb",
+            measurementId: "G-W2REDG7RRC"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function updateVisitorCounter() {
+            const docRef = doc(db, "visitors", "count");
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                await setDoc(docRef, { count: increment(1) }, { merge: true });
+                const newDocSnap = await getDoc(docRef);
+                document.getElementById("visitorCounter").innerText = `Besökare: ${newDocSnap.data().count}`;
+            } else {
+                await setDoc(docRef, { count: 1 });
+                document.getElementById("visitorCounter").innerText = "Besökare: 1";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            updateVisitorCounter();
+        });
+
+        // Video URLs
+        const videos = [
+            'https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4',
+            'https://videos.pexels.com/video-files/2569168/2569168-hd_1280_720_24fps.mp4',
+            'https://videos.pexels.com/video-files/20233744/20233744-hd_1280_720_30fps.mp4',
+            'https://videos.pexels.com/video-files/20218339/20218339-hd_1280_720_25fps.mp4',
+            'https://videos.pexels.com/video-files/3752545/3752545-hd_1280_720_24fps.mp4'
+        ];
+
+        // Random video selection
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const video = document.getElementById('bg-video');
+            const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+            video.setAttribute('src', randomVideo);
+            video.setAttribute('playsinline', '');
+            video.muted = true;
+            video.play();
+        });
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').prepend(errorDiv);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function validateForm() {
+            const salary = document.getElementById('salary').value;
+            const leaveDays = document.getElementById('leaveDays').value;
+            const daysWorked = document.getElementById('daysWorked').value;
+            const revenue = document.getElementById('revenue').value;
+
+            if (salary <= 0 || leaveDays < 0 || daysWorked < 0 || revenue < 0) {
+                showError('Vänligen fyll i alla fält med giltiga värden.');
+                return false;
+            }
+            return true;
+        }
+
+        function saveData() {
+            localStorage.setItem('salary', document.getElementById('salary').value);
+            localStorage.setItem('leaveDays', document.getElementById('leaveDays').value);
+            localStorage.setItem('leaveType', document.getElementById('leaveType').value);
+        }
+
+        function loadData() {
+            document.getElementById('salary').value = localStorage.getItem('salary') || '';
+            document.getElementById('leaveDays').value = localStorage.getItem('leaveDays') || '';
+            document.getElementById('leaveType').value = localStorage.getItem('leaveType') || 'sick';
+        }
+
+        function calculateLeave() {
+            if (!validateForm()) {
+                return;
+            }
+
+            const salary = document.getElementById('salary').value;
+            const leaveDays = document.getElementById('leaveDays').value;
+            const leaveType = document.getElementById('leaveType').value;
+
+            if (salary > 0 && leaveDays >= 0) {
+                // Räkna ut dagslönen
+                const dailySalary = salary / 21;
+
+                let salaryAfterLeave;
+
+                if (leaveType === 'sick') {
+                    // Karensdagens avdrag
+                    const firstDayDeduction = dailySalary;
+
+                    // Räkna ut avdrag för återstående sjukdagar (80% av dagslönen)
+                    const remainingDaysDeduction = dailySalary * (leaveDays - 1);
+                    const addBack = (dailySalary * 0.8) * (leaveDays - 1);
+
+                    // Räkna ut månadslön efter avdrag vid sjukfrånvaro
+                    salaryAfterLeave = salary - firstDayDeduction - remainingDaysDeduction + addBack;
+                } else {
+                    // VAB avdrag
+                    salaryAfterLeave = salary - (dailySalary * leaveDays);
+                }
+
+                // Visa resultatet
+                const dailySalaryText = "Värde på en arbetsdag: " + Math.round(dailySalary) + " kr<br>";
+                const leaveDayValueText = leaveType === 'sick' ? "Värde på en sjukdag: " + Math.round(dailySalary * 0.8) + " kr<br>" : "Värde på en VAB-dag: " + Math.round(dailySalary) + " kr<br>";
+                const finalSalaryText = "Slutgiltig lön efter avdrag: " + Math.round(salaryAfterLeave) + " kr";
+                document.getElementById('leaveResult').innerHTML = finalSalaryText + "<br>" + dailySalaryText + leaveDayValueText;
+                document.getElementById('leaveResult').style.opacity = 0;
+                setTimeout(() => {
+                    document.getElementById('leaveResult').style.opacity = 1;
+                }, 0);
+
+                // Uppdatera månadslön fältet i provision form
+                const monthlySalaryField = document.getElementById('monthlySalary');
+                monthlySalaryField.value = Math.round(salaryAfterLeave);
+                if (Math.round(salaryAfterLeave) < salary) {
+                    monthlySalaryField.classList.remove('highlight-green');
+                    monthlySalaryField.classList.add('highlight-red');
+                } else {
+                    monthlySalaryField.classList.remove('highlight-red');
+                    monthlySalaryField.classList.add('highlight-green');
+                }
+
+                // Byt till provision steg
+                document.getElementById('leaveContainer').classList.add('hidden');
+                document.getElementById('provisionContainer').classList.remove('hidden');
+                saveData();
+            } else {
+                showError('Vänligen fyll i alla fält med giltiga värden.');
+            }
+        }
+
+        function noLeave() {
+            const salary = document.getElementById('salary').value;
+            if (salary > 0) {
+                const monthlySalaryField = document.getElementById('monthlySalary');
+                monthlySalaryField.value = Math.round(salary);
+                monthlySalaryField.classList.remove('highlight-red');
+                monthlySalaryField.classList.add('highlight-green');
+                document.getElementById('leaveResult').innerHTML = "Ingen frånvaro. Månadslön: " + Math.round(salary) + " kr";
+                document.getElementById('leaveResult').style.opacity = 0;
+                setTimeout(() => {
+                    document.getElementById('leaveResult').style.opacity = 1;
+                }, 0);
+
+                // Byt till provision steg
+                document.getElementById('leaveContainer').classList.add('hidden');
+                document.getElementById('provisionContainer').classList.remove('hidden');
+            } else {
+                showError('Vänligen fyll i alla fält med giltiga värden.');
+            }
+        }
+
+        function startCalculation() {
+            if (!validateForm()) {
+                return;
+            }
+
+            // Visa laddningsanimation
+            const loadingContainer = document.getElementById('loading-container');
+            loadingContainer.style.visibility = 'visible';
+
+            // Vänta 3 sekunder och kör calculateProvision
+            setTimeout(() => {
+                calculateProvision();
+                loadingContainer.style.visibility = 'hidden';
+            }, 3000);
+        }
+
+        function calculateProvision() {
+            if (!validateForm()) {
+                return;
+            }
+
+            const daysWorked = document.getElementById('daysWorked').value;
+            const revenue = document.getElementById('revenue').value;
+            const monthlySalary = document.getElementById('monthlySalary').value;
+            const dailyRate = 7816;
+            const multiplier = 0.17;
+
+            if (daysWorked > 0 && revenue > 0 && monthlySalary > 0) {
+                const intermediateResult = daysWorked * dailyRate;
+                const remainingRevenue = revenue - intermediateResult;
+                const provision = remainingRevenue * multiplier;
+                const totalIncome = parseFloat(monthlySalary) + provision;
+
+                // Byt till resultat steg
+                document.getElementById('provisionContainer').classList.add('hidden');
+                document.getElementById('resultContainer').classList.remove('hidden');
+
+                // Calculate stats
+                const averageDailyEarnings = totalIncome / daysWorked;
+                const averageHourlyEarnings = averageDailyEarnings / 8;
+                const totalItems = Math.round(revenue / 780);
+                const itemsRangeMin = Math.floor(totalItems / 10) * 10;
+                const itemsRangeMax = itemsRangeMin + 49;
+
+                document.getElementById('result').innerHTML = `Din provision är: ${formatNumber(Math.round(provision))} kr<br>Din totala inkomst med månadslön är: ${formatNumber(Math.round(totalIncome))} kr`;
+                document.getElementById('result').style.opacity = 0;
+                setTimeout(() => {
+                    document.getElementById('result').style.opacity = 1;
+                }, 0);
+
+                if (totalIncome > 26000) {
+                    const messages = [
+                        "Bra jobbat! Denna månaden har du tjänat mer än månadslönen!",
+                        "Fantastiskt! Du har överträffat månadslönen denna månaden!",
+                        "Imponerande! Du har tjänat mer än månadslönen denna månaden!",
+                        "Utmärkt arbete! Din inkomst denna månaden är över månadslönen!",
+                        "Strålande! Du har nått en ny höjd i din månadsinkomst!"
+                    ];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    document.getElementById('motivation').innerText = randomMessage;
+                    document.getElementById('motivation').style.opacity = 0;
+                    setTimeout(() => {
+                        document.getElementById('motivation').style.opacity = 1;
+                    }, 0);
+                } else {
+                    document.getElementById('motivation').innerText = '';
+                }
+
+                document.getElementById('info').innerHTML = `
+                    Snittlön per dag: ${formatNumber(Math.round(averageDailyEarnings))} kr<br>
+                    Snittlön per timme: ${formatNumber(Math.round(averageHourlyEarnings))} kr<br>
+                    Antal objekt per månad: ${itemsRangeMin}-${itemsRangeMax}
+                `;
+                document.getElementById('info').style.opacity = 0;
+                setTimeout(() => {
+                    document.getElementById('info').style.opacity = 1;
+                }, 0);
+            } else {
+                showError('Vänligen fyll i alla fält med giltiga värden.');
+                document.getElementById('motivation').innerText = '';
+            }
+        }
+
+        // Ladda data vid sidladdning
+        window.onload = loadData;
+    </script>
+</body>
+</html>
