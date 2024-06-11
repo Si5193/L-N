@@ -12,8 +12,10 @@
         <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
-    <dotlottie-player src="https://lottie.host/7549397b-7c28-4da0-86fd-347247528bb0/880vG8Fpum.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
-    <div class="container" id="main-container">
+    <div id="lottie-container">
+        <dotlottie-player src="https://lottie.host/7549397b-7c28-4da0-86fd-347247528bb0/880vG8Fpum.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+    </div>
+    <div class="container" id="main-container" style="display: none;">
         <h1>Välkommen till Provision Uträkning</h1>
         <div class="auth-container">
             <a href="login.html" class="btn">Logga In</a>
@@ -23,11 +25,20 @@
     <script type="module" src="js/firebaseConfig.js"></script>
     <script>
         // Döljer containern initialt
-        document.getElementById('main-container').style.display = 'none';
+        document.getElementById('main-container').style.opacity = '0';
         
-        // Visar containern efter 1.2 sekunder
+        // Byt ut Lottie-animationen med containern efter 1,2 sekunder
         setTimeout(() => {
-            document.getElementById('main-container').style.display = 'block';
+            const lottieContainer = document.getElementById('lottie-container');
+            const mainContainer = document.getElementById('main-container');
+            
+            lottieContainer.style.opacity = '0';
+            mainContainer.style.display = 'block';
+            
+            setTimeout(() => {
+                mainContainer.style.opacity = '1';
+            }, 100);  // Låt CSS-transitioner ta effekt
+            
         }, 1200);
     </script>
 </body>
