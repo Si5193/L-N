@@ -30,7 +30,8 @@ body, html {
     width: 90%;
     text-align: center;
     margin: 20px;
-    animation: fadeInUp 1s forwards;
+    opacity: 0;
+    animation: fadeIn 1s forwards 1.2s;
 }
 
 h1 {
@@ -79,9 +80,12 @@ input:focus {
     margin-top: 20px;
 }
 
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
 }
