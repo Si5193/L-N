@@ -21,12 +21,6 @@ body, html {
     transform: translate(-50%, -50%);
 }
 
-#lottie-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 .container {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
@@ -37,7 +31,7 @@ body, html {
     text-align: center;
     margin: 20px;
     opacity: 0;
-    transition: opacity 1s;
+    animation: fadeIn 1s forwards;
 }
 
 h1 {
@@ -89,9 +83,4 @@ input:focus {
 @keyframes fadeIn {
     0% { opacity: 0; }
     100% { opacity: 1; }
-}
-
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
 }
