@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kontrollpanel</title>
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <video id="bg-video" autoplay muted loop playsinline class="bg-video">
+        <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
     <div class="container">
         <h1>Välkommen till din Kontrollpanel</h1>
         <div class="options">
@@ -14,10 +18,9 @@
                 <h2>Provisionsuträknaren</h2>
                 <p>Beräkna din provision snabbt och enkelt.</p>
             </div>
-            <!-- Placeholder for other options -->
-            <div class="option">
-                <h2>Val 2</h2>
-                <p>Beskrivning för val 2.</p>
+            <div class="option" onclick="location.href='kalkyl.html'">
+                <h2>Kalkylformulär</h2>
+                <p>Välj datum och fyll i omsättning.</p>
             </div>
             <div class="option">
                 <h2>Val 3</h2>
@@ -31,4 +34,3 @@
     </div>
 </body>
 </html>
-
