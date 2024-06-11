@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkylformulär</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <video id="bg-video" autoplay muted loop playsinline class="bg-video">
+        <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="container">
+        <h1>Kalkylformulär</h1>
+        <form id="kalkyl-form">
+            <label for="date">Datum:</label>
+            <input type="date" id="date" name="date" required>
+            
+            <label for="revenue">Omsättning:</label>
+            <input type="number" id="revenue" name="revenue" required>
+            
+            <button type="submit" class="btn">Spara</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script type="module" src="js/firebaseConfig.js"></script>
+    <script type="module" src="js/kalkyl.js"></script>
+</body>
+</html>
