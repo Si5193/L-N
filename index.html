@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landningssida</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
         <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
-    <div id="lottie-container">
-        <dotlottie-player src="https://lottie.host/7549397b-7c28-4da0-86fd-347247528bb0/880vG8Fpum.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
-    </div>
-    <div class="container" id="main-container" style="display: none;">
+    <div class="container" id="main-container">
         <h1>Välkommen till Provision Uträkning</h1>
         <div class="auth-container">
             <a href="login.html" class="btn">Logga In</a>
@@ -23,23 +19,5 @@
         </div>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
-    <script>
-        // Döljer containern initialt
-        document.getElementById('main-container').style.opacity = '0';
-        
-        // Byt ut Lottie-animationen med containern efter 1,2 sekunder
-        setTimeout(() => {
-            const lottieContainer = document.getElementById('lottie-container');
-            const mainContainer = document.getElementById('main-container');
-            
-            lottieContainer.style.opacity = '0';
-            mainContainer.style.display = 'block';
-            
-            setTimeout(() => {
-                mainContainer.style.opacity = '1';
-            }, 100);  // Låt CSS-transitioner ta effekt
-            
-        }, 1200);
-    </script>
 </body>
 </html>
