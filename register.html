@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skapa Konto</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="js/firebaseConfig.js" type="module"></script>
+    <script src="js/auth.js" type="module"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Skapa Konto</h1>
+        <form id="register-form">
+            <input type="email" id="register-email" placeholder="Email" required>
+            <input type="password" id="register-password" placeholder="Lösenord" required>
+            <button type="submit" class="btn">Registrera</button>
+        </form>
+        <p>Har du redan ett konto? <a href="login.html">Logga in här</a></p>
+    </div>
+</body>
+</html>
