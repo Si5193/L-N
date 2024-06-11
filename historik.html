@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historisk Data</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <video id="bg-video" autoplay muted loop playsinline class="bg-video">
+        <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="container">
+        <h1>Historisk Data</h1>
+        <div id="historik-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Månad</th>
+                        <th>Omsättning</th>
+                        <th>Tjänat</th>
+                    </tr>
+                </thead>
+                <tbody id="historik-list"></tbody>
+            </table>
+        </div>
+    </div>
+    <script type="module" src="js/firebaseConfig.js"></script>
+    <script type="module" src="js/historik.js"></script>
+</body>
+</html>
