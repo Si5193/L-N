@@ -6,6 +6,7 @@ const expectedSalaryElement = document.getElementById('expected-salary');
 const revenueChartCtx = document.getElementById('revenueChart').getContext('2d');
 const monthlySalaryInput = document.getElementById('monthly-salary');
 const saveSalaryButton = document.getElementById('save-salary');
+const salaryInputContainer = document.getElementById('salary-input-container');
 
 let currentUser = null;
 let revenueChart = null;
@@ -15,7 +16,6 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
         loadMonthlySalary(user.uid);
-        fetchRevenues(user.uid);
     } else {
         window.location.href = 'index.html';
     }
@@ -29,9 +29,10 @@ saveSalaryButton.addEventListener('click', () => {
 
 async function saveMonthlySalary(uid, salary) {
     try {
-        await setDoc(doc(db, "users", uid), { monthlySalary: salary });
+        await setDoc(doc(db, "users", uid), { monthlySalary: salary }, { merge: true });
         alert('Månadslön sparad!');
-        calculateExpectedSalary();
+        salaryInputContainer.style.display = 'none';
+        fetchRevenues(uid);
     } catch (error) {
         console.error('Fel vid sparande av månadslön:', error);
         alert('Fel vid sparande av månadslön. Försök igen.');
@@ -43,7 +44,15 @@ async function loadMonthlySalary(uid) {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
         monthlySalary = docSnap.data().monthlySalary;
-        monthlySalaryInput.value = monthlySalary;
+        if (monthlySalary) {
+            monthlySalaryInput.value = monthlySalary;
+            salaryInputContainer.style.display = 'none';
+            fetchRevenues(uid);
+        } else {
+            salaryInputContainer.style.display = 'block';
+        }
+    } else {
+        salaryInputContainer.style.display = 'block';
     }
 }
 
