@@ -1,8 +1,19 @@
-import { db } from './firebaseConfig.js';
-import { collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, db } from './firebaseConfig.js';
+import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const preliminarLonForm = document.getElementById('preliminar-lon-form');
 const messageDiv = document.getElementById('message');
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+    } else {
+        window.location.href = 'index.html';
+    }
+});
 
 if (preliminarLonForm) {
     preliminarLonForm.addEventListener('submit', async (e) => {
@@ -10,6 +21,11 @@ if (preliminarLonForm) {
         
         const days = document.getElementById('days').value;
         const revenue = document.getElementById('revenue').value;
+
+        if (!currentUser) {
+            alert('Användare inte inloggad.');
+            return;
+        }
 
         try {
             const dailyRevenue = revenue / days;
