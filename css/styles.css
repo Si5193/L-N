@@ -74,4 +74,44 @@ body, html {
 .chart-container {
     width: 100%;
     height: 400px;
-    margin: 
+    margin: 20px 0;
+}
+
+.summary-container {
+    margin-top: 20px;
+    color: #00796b;
+}
+
+h1, h2 {
+    color: #00796b;
+    margin-bottom: 20px;
+}
+
+#expected-salary {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.btn {
+    background-color: #00796b;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background-color: #004d40;
+    transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
