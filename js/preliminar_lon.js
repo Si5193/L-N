@@ -31,7 +31,9 @@ async function saveMonthlySalary(uid, salary) {
     try {
         await setDoc(doc(db, "users", uid), { monthlySalary: salary }, { merge: true });
         alert('Månadslön sparad!');
-        salaryInputContainer.style.display = 'none';
+        if (salaryInputContainer) {
+            salaryInputContainer.style.display = 'none';
+        }
         fetchRevenues(uid);
     } catch (error) {
         console.error('Fel vid sparande av månadslön:', error);
@@ -46,13 +48,19 @@ async function loadMonthlySalary(uid) {
         monthlySalary = docSnap.data().monthlySalary;
         if (monthlySalary) {
             monthlySalaryInput.value = monthlySalary;
-            salaryInputContainer.style.display = 'none';
+            if (salaryInputContainer) {
+                salaryInputContainer.style.display = 'none';
+            }
             fetchRevenues(uid);
         } else {
-            salaryInputContainer.style.display = 'block';
+            if (salaryInputContainer) {
+                salaryInputContainer.style.display = 'block';
+            }
         }
     } else {
-        salaryInputContainer.style.display = 'block';
+        if (salaryInputContainer) {
+            salaryInputContainer.style.display = 'block';
+        }
     }
 }
 
