@@ -7,15 +7,18 @@ if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const username = document.getElementById('login-username').value;
+        let username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
+        // Skapa en giltig e-postadress från användarnamnet
+        const email = `${username}@example.com`;
+
         try {
-            await signInWithEmailAndPassword(auth, username, password);
+            await signInWithEmailAndPassword(auth, email, password);
             window.location.href = 'dashboard.html';
         } catch (error) {
             console.error('Fel vid inloggning:', error);
-            alert('Fel vid inloggning. Kontrollera dina uppgifter och försök igen.');
+            alert(`Fel vid inloggning: ${error.message}`);
         }
     });
 }
