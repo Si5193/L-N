@@ -79,16 +79,49 @@ async function fetchRevenues(uid) {
     calculateExpectedSalary(revenues, dates);
 }
 
+function getNumberOfDaysInMonth(month, year) {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+function getWorkdaysInMonth(month, year, redDays) {
+    let workdays = 0;
+    for (let day = 1; day <= getNumberOfDaysInMonth(month, year); day++) {
+        const currentDate = new Date(year, month, day);
+        const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+        const isRedDay = redDays.some(redDay => {
+            const redDate = new Date(redDay);
+            return redDate.getDate() === currentDate.getDate() && redDate.getMonth() === currentDate.getMonth();
+        });
+        if (!isWeekend && !isRedDay) {
+            workdays++;
+        }
+    }
+    return workdays;
+}
+
 function calculateExpectedSalary(revenues = [], dates = []) {
     if (!monthlySalary) return;
 
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+
+    // Definiera röda dagar här, exempel:
+    const redDays = [
+        `${year}-01-01`, // Nyårsdagen
+        `${year}-12-25`, // Juldagen
+        // Lägg till fler röda dagar här
+    ];
+
+    const workdaysInMonth = getWorkdaysInMonth(month, year, redDays);
+    
     const totalRevenue = revenues.reduce((sum, revenue) => sum + revenue, 0);
     const daysWorked = revenues.length;
     const dailyRevenue = totalRevenue / daysWorked;
     const dailyProvision = (dailyRevenue - 7816) * 0.17;
     const dailySalary = monthlySalary / 21;
     const totalDailyEarnings = dailySalary + dailyProvision;
-    const expectedSalary = totalDailyEarnings * 30;
+    const expectedSalary = totalDailyEarnings * workdaysInMonth;
 
     expectedSalaryElement.textContent = `${Math.round(expectedSalary)} kr`;
 
