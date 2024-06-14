@@ -1,27 +1,19 @@
 import { auth } from './firebaseConfig.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const userProfile = document.getElementById('user-profile');
-const logoutLink = document.getElementById('logout');
+const dropdownContent = document.getElementById('dropdown-content');
+const logoutButton = document.getElementById('logout');
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        const userNameElement = document.getElementById('user-name');
-        if (userNameElement) {
-            userNameElement.textContent = user.email;  // Visa användarens email som namn
-        }
-    } else {
-        window.location.href = 'index.html';
-    }
+userProfile.addEventListener('click', () => {
+    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
 });
 
-if (logoutLink) {
-    logoutLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        signOut(auth).then(() => {
-            window.location.href = 'index.html';
-        }).catch((error) => {
-            console.error('Error signing out:', error);
-        });
-    });
-}
+logoutButton.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error('Error logging out:', error);
+    }
+});
