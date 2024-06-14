@@ -4,6 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/f
 
 const revenueList = document.getElementById('revenueList');
 const resetRevenueButton = document.getElementById('resetRevenue');
+const loadingIndicator = document.getElementById('loadingIndicator');
 
 let currentUser = null;
 
@@ -22,10 +23,13 @@ async function saveRevenue() {
     const revenue = parseFloat(document.getElementById('revenue').value);
     const uid = currentUser.uid;
     try {
+        loadingIndicator.style.display = 'block';
         await setDoc(doc(db, "revenues", `${uid}_${date}`), { uid, date, revenue });
+        loadingIndicator.style.display = 'none';
         alert('Omsättning sparad!');
         fetchRevenues(uid);
     } catch (error) {
+        loadingIndicator.style.display = 'none';
         console.error('Fel vid sparande av omsättning:', error);
         alert('Fel vid sparande av omsättning. Försök igen.');
     }
@@ -33,6 +37,7 @@ async function saveRevenue() {
 
 async function fetchRevenues(uid) {
     if (!uid) return;
+    loadingIndicator.style.display = 'block';
     const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
     const querySnapshot = await getDocs(q);
     revenueList.innerHTML = '';
@@ -42,11 +47,16 @@ async function fetchRevenues(uid) {
         listItem.textContent = `${data.date}: ${data.revenue} kr`;
         revenueList.appendChild(listItem);
     });
+    loadingIndicator.style.display = 'none';
 }
 
 resetRevenueButton.addEventListener('click', async () => {
     if (!currentUser) return;
+    const confirmation = confirm("Är du säker på att du vill nollställa din dagliga omsättning?");
+    if (!confirmation) return;
+
     const uid = currentUser.uid;
+    loadingIndicator.style.display = 'block';
     const q = query(collection(db, "revenues"), where("uid", "==", uid));
     const querySnapshot = await getDocs(q);
     const batch = db.batch();
@@ -54,6 +64,7 @@ resetRevenueButton.addEventListener('click', async () => {
         batch.delete(doc.ref);
     });
     await batch.commit();
+    loadingIndicator.style.display = 'none';
     alert('Daglig omsättning nollställd!');
     fetchRevenues(uid);
 });
