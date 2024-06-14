@@ -7,6 +7,7 @@ const revenueChartCtx = document.getElementById('revenueChart').getContext('2d')
 const monthlySalaryInput = document.getElementById('monthly-salary');
 const saveSalaryButton = document.getElementById('save-salary');
 const salaryInputContainer = document.getElementById('salary-input-container');
+const resetSalaryButton = document.getElementById('resetSalary');
 
 let currentUser = null;
 let revenueChart = null;
@@ -25,6 +26,20 @@ saveSalaryButton.addEventListener('click', () => {
     if (!currentUser) return;
     monthlySalary = parseFloat(monthlySalaryInput.value);
     saveMonthlySalary(currentUser.uid, monthlySalary);
+});
+
+resetSalaryButton.addEventListener('click', () => {
+    if (!currentUser) return;
+    monthlySalary = 0;
+    saveMonthlySalary(currentUser.uid, monthlySalary);
+    monthlySalaryInput.value = '';
+    expectedSalaryElement.textContent = '';
+    if (salaryInputContainer) {
+        salaryInputContainer.style.display = 'block';
+    }
+    if (revenueChart) {
+        revenueChart.destroy();
+    }
 });
 
 async function saveMonthlySalary(uid, salary) {
