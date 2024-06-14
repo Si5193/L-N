@@ -5,30 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preliminär Lön</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
         <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
-    <div class="container">
-        <div class="user-profile" id="user-profile">
-            <span id="username"></span>
-            <div class="dropdown-content" id="dropdown-content">
-                <a href="#" id="logout">Logga ut</a>
-            </div>
+    <div class="user-profile" id="user-profile">
+        <i class="fas fa-user-circle fa-2x"></i>
+        <div class="dropdown-content" id="dropdown-content">
+            <a href="#" id="logout">Logga ut</a>
         </div>
+    </div>
+    <div class="container">
         <h1>Preliminär Lön</h1>
-        <form id="preliminar-lon-form">
-            <label for="days">Antal dagar:</label>
-            <input type="number" id="days" name="days" required>
-            
-            <label for="revenue">Omsättning:</label>
-            <input type="number" id="revenue" name="revenue" required>
-            
-            <button type="submit" class="btn">Beräkna Preliminär Lön</button>
-        </form>
-        <div id="message"></div>
+        <div class="input-container">
+            <label for="monthly-salary">Ange din månadslön:</label>
+            <input type="number" id="monthly-salary" required>
+            <button id="save-salary" class="btn">Spara Månadslön</button>
+        </div>
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="summary-container">
+            <h2>Förväntad lön:</h2>
+            <p id="expected-salary"></p>
+        </div>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
