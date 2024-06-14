@@ -1,3 +1,24 @@
+body.light {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.dark {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.container.light {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #000000;
+}
+
+.container.dark {
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #ffffff;
+}
+
+/* Andra CSS-regler för allmän styling */
 body, html {
     height: 100%;
     margin: 0;
@@ -67,48 +88,35 @@ body, html {
     animation: fadeIn 1s forwards;
 }
 
-.input-container {
-    margin-bottom: 20px;
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
 }
 
-.chart-container {
-    width: 100%;
-    height: 400px;
-    margin: 20px 0;
-}
-
-.summary-container {
-    margin-top: 20px;
-    color: #00796b;
-}
-
-h1, h2 {
-    color: #00796b;
-    margin-bottom: 20px;
-}
-
-#expected-salary {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.btn {
-    background-color: #00796b;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
+.dashboard-item {
+    background-color: rgba(0, 121, 107, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px;
+    width: 40%;
+    text-align: center;
     transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
 }
 
-.btn:hover {
-    background-color: #004d40;
-    transform: translateY(-2px);
+.dashboard-item:hover {
+    background-color: rgba(0, 121, 107, 0.2);
+    transform: translateY(-5px);
+}
+
+.dashboard-item i {
+    color: #00796b;
+}
+
+.dashboard-item p {
+    margin-top: 10px;
+    color: #00796b;
+    font-size: 18px;
 }
 
 #loadingIndicator {
@@ -131,48 +139,12 @@ h1, h2 {
         padding: 10px;
         width: 95%;
     }
-    h1 {
-        font-size: 18px;
+    .dashboard-item {
+        width: 100%;
+        margin-bottom: 10px;
     }
-    .btn {
-        padding: 8px 16px;
-        font-size: 12px;
-    }
-    .chart-container {
-        height: 300px;
-    }
-    #expected-salary {
-        font-size: 20px;
-    }
-}
-.btn {
-    background-color: #00796b;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-    animation: fadeIn 1s forwards;
-}
-
-.btn:hover {
-    background-color: #004d40;
-    transform: translateY(-2px);
-}
-
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-        width: 95%;
+    .dashboard-item p {
+        font-size: 16px;
     }
     h1 {
         font-size: 18px;
