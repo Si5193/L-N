@@ -59,11 +59,8 @@ resetRevenueButton.addEventListener('click', async () => {
     loadingIndicator.style.display = 'block';
     const q = query(collection(db, "revenues"), where("uid", "==", uid));
     const querySnapshot = await getDocs(q);
-    const batch = db.batch();
-    querySnapshot.forEach((doc) => {
-        batch.delete(doc.ref);
-    });
-    await batch.commit();
+    const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
     loadingIndicator.style.display = 'none';
     alert('Daglig omsättning nollställd!');
     fetchRevenues(uid);
