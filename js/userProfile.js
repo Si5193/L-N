@@ -11,14 +11,14 @@ onAuthStateChanged(auth, (user) => {
         const username = email.substring(0, email.indexOf('@'));
         usernameSpan.textContent = username;
     } else {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 });
 
 logoutLink.addEventListener('click', (e) => {
     e.preventDefault();
     signOut(auth).then(() => {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }).catch((error) => {
         console.error('Error signing out:', error);
     });
