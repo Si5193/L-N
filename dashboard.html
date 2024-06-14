@@ -6,8 +6,6 @@
     <title>Kontrollpanel</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -21,23 +19,31 @@
         </div>
     </div>
     <div class="container">
-        <h1>Välkommen till din Kontrollpanel</h1>
-        <div class="options">
-            <div class="option" onclick="location.href='provisionsutraknaren.html'">
-                <h2>Provisionsuträknaren</h2>
-                <p>Beräkna din provision snabbt och enkelt.</p>
+        <h1>Kontrollpanel</h1>
+        <div class="dashboard">
+            <div class="dashboard-item">
+                <a href="daglig_omsattning.html">
+                    <i class="fas fa-file-invoice-dollar fa-3x"></i>
+                    <p>Daglig Omsättning</p>
+                </a>
             </div>
-            <div class="option" onclick="location.href='daglig_omsattning.html'">
-                <i class="fa-solid fa-file-invoice fa-3x"></i>
-                <h2>Daglig omsättning</h2>
+            <div class="dashboard-item">
+                <a href="preliminar_lon.html">
+                    <i class="fas fa-chart-line fa-3x"></i>
+                    <p>Preliminär Lön</p>
+                </a>
             </div>
-            <div class="option" onclick="location.href='historik.html'">
-                <h2>Historisk Data</h2>
-                <p>Se historisk data månad för månad.</p>
+            <div class="dashboard-item">
+                <a href="historik.html">
+                    <i class="fas fa-history fa-3x"></i>
+                    <p>Historik</p>
+                </a>
             </div>
-            <div class="option" onclick="location.href='preliminar_lon.html'">
-                <h2>Preliminär Lön</h2>
-                <p>Följ din lön för aktuell månad.</p>
+            <div class="dashboard-item">
+                <a href="inställningar.html">
+                    <i class="fas fa-cogs fa-3x"></i>
+                    <p>Inställningar</p>
+                </a>
             </div>
         </div>
     </div>
