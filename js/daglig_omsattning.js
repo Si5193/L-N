@@ -17,7 +17,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-export async function saveRevenue() {
+window.saveRevenue = async function saveRevenue() { // Gör funktionen tillgänglig globalt
     if (!currentUser) return;
     const date = document.getElementById('date').value;
     const revenue = parseFloat(document.getElementById('revenue').value);
