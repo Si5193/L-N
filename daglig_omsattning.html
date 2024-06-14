@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkylformulär</title>
+    <title>Daglig omsättning</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -18,27 +18,27 @@
         </div>
     </div>
     <div class="container">
-        <h1>Kalkylformulär</h1>
+        <h1>Daglig omsättning</h1>
         <div class="form-and-list">
-            <form id="kalkyl-form">
+            <form id="omsattning-form">
                 <label for="date">Datum:</label>
                 <input type="date" id="date" name="date" required>
                 
-                <label for="revenue">Omsättning:</label>
+                <label for="revenue">Dagens omsättning:</label>
                 <input type="number" id="revenue" name="revenue" required>
                 
                 <button type="submit" class="btn">Spara</button>
             </form>
             <div id="message"></div>
             <div class="list-container">
-                <h2>Omsättning per månad</h2>
+                <h2>Omsättning per dag</h2>
                 <ul id="revenue-list"></ul>
             </div>
         </div>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
-    <script type="module" src="js/kalkyl.js"></script>
+    <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
 </body>
 </html>
