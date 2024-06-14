@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inställningar</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <video id="bg-video" autoplay muted loop playsinline class="bg-video">
+        <source src="https://videos.pexels.com/video-files/3866849/3866849-hd_1280_720_50fps.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="user-profile" id="user-profile">
+        <i class="fas fa-user-circle fa-2x"></i>
+        <div class="dropdown-content" id="dropdown-content">
+            <a href="#" id="logout">Logga ut</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Inställningar</h1>
+        <label for="theme">Välj färgtema:</label>
+        <select id="theme">
+            <option value="light">Ljus</option>
+            <option value="dark">Mörk</option>
+        </select>
+        <button onclick="saveSettings()">Spara inställningar</button>
+        <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
+    </div>
+    <script type="module" src="js/firebaseConfig.js"></script>
+    <script type="module" src="js/userProfile.js"></script>
+    <script>
+        function saveSettings() {
+            const theme = document.getElementById('theme').value;
+            document.body.className = theme;
+            localStorage.setItem('theme', theme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.className = savedTheme;
+                document.getElementById('theme').value = savedTheme;
+            }
+        });
+    </script>
+</body>
+</html>
