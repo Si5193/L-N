@@ -11,14 +11,20 @@ let currentUser = null;
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
+        console.log('User logged in:', user.uid);
         fetchRevenues(user.uid);
     } else {
+        console.log('No user logged in, redirecting to index.html');
         window.location.href = 'index.html';
     }
 });
 
-window.saveRevenue = async function saveRevenue() { // Gör funktionen tillgänglig globalt
-    if (!currentUser) return;
+window.saveRevenue = async function saveRevenue() {
+    console.log('saveRevenue function called');
+    if (!currentUser) {
+        console.log('No current user');
+        return;
+    }
     const date = document.getElementById('date').value;
     const revenue = parseFloat(document.getElementById('revenue').value);
     const uid = currentUser.uid;
@@ -33,7 +39,7 @@ window.saveRevenue = async function saveRevenue() { // Gör funktionen tillgäng
         console.error('Fel vid sparande av omsättning:', error);
         alert('Fel vid sparande av omsättning. Försök igen.');
     }
-}
+};
 
 async function fetchRevenues(uid) {
     if (!uid) return;
