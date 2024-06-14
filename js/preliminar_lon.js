@@ -8,6 +8,7 @@ const monthlySalaryInput = document.getElementById('monthly-salary');
 const saveSalaryButton = document.getElementById('save-salary');
 const salaryInputContainer = document.getElementById('salary-input-container');
 const resetSalaryButton = document.getElementById('resetSalary');
+const loadingIndicator = document.getElementById('loadingIndicator');
 
 let currentUser = null;
 let revenueChart = null;
@@ -30,6 +31,9 @@ saveSalaryButton.addEventListener('click', () => {
 
 resetSalaryButton.addEventListener('click', () => {
     if (!currentUser) return;
+    const confirmation = confirm("Är du säker på att du vill nollställa din månadslön?");
+    if (!confirmation) return;
+
     monthlySalary = 0;
     saveMonthlySalary(currentUser.uid, monthlySalary);
     monthlySalaryInput.value = '';
@@ -44,13 +48,16 @@ resetSalaryButton.addEventListener('click', () => {
 
 async function saveMonthlySalary(uid, salary) {
     try {
+        loadingIndicator.style.display = 'block';
         await setDoc(doc(db, "users", uid), { monthlySalary: salary }, { merge: true });
+        loadingIndicator.style.display = 'none';
         alert('Månadslön sparad!');
         if (salaryInputContainer) {
             salaryInputContainer.style.display = 'none';
         }
         fetchRevenues(uid);
     } catch (error) {
+        loadingIndicator.style.display = 'none';
         console.error('Fel vid sparande av månadslön:', error);
         alert('Fel vid sparande av månadslön. Försök igen.');
     }
@@ -81,6 +88,7 @@ async function loadMonthlySalary(uid) {
 
 async function fetchRevenues(uid) {
     if (!uid) return;
+    loadingIndicator.style.display = 'block';
     const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
     const querySnapshot = await getDocs(q);
     const revenues = [];
@@ -90,6 +98,7 @@ async function fetchRevenues(uid) {
         revenues.push(data.revenue);
         dates.push(data.date);
     });
+    loadingIndicator.style.display = 'none';
 
     calculateExpectedSalary(revenues, dates);
 }
