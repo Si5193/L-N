@@ -6,7 +6,6 @@
     <title>Daglig Omsättning</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -21,7 +20,7 @@
         </div>
     </div>
     <div class="container">
-        <h1><i class="fas fa-file-invoice"></i> Daglig Omsättning</h1>
+        <h1><i class="fas fa-file-invoice-dollar"></i> Daglig Omsättning</h1>
         <form id="omsattningForm">
             <label for="date">Datum:</label>
             <input type="date" id="date" required>
@@ -30,7 +29,7 @@
             <button type="button" class="btn" onclick="saveRevenue()">Spara Omsättning</button>
         </form>
         <button id="resetRevenue" class="btn">Nollställ Daglig Omsättning</button>
-        <div id="loadingIndicator">Laddar...</div>
+        <div id="loadingIndicator" style="display: none;">Laddar...</div>
         <div id="revenueList"></div>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
