@@ -7,8 +7,11 @@ if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const email = document.getElementById('register-username').value;
+        let username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
+
+        // Skapa en giltig e-postadress från användarnamnet
+        const email = `${username}@example.com`;
 
         try {
             await createUserWithEmailAndPassword(auth, email, password);
