@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preliminär Lön</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <video id="bg-video" autoplay muted loop playsinline class="bg-video">
+        <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="container">
+        <h1>Preliminär Lön</h1>
+        <form id="preliminar-lon-form">
+            <label for="days">Antal dagar:</label>
+            <input type="number" id="days" name="days" required>
+            
+            <label for="revenue">Omsättning:</label>
+            <input type="number" id="revenue" name="revenue" required>
+            
+            <button type="submit" class="btn">Beräkna Preliminär Lön</button>
+        </form>
+        <div id="message"></div>
+        <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
+    </div>
+    <script type="module" src="js/firebaseConfig.js"></script>
+    <script type="module" src="js/preliminar_lon.js"></script>
+</body>
+</html>
