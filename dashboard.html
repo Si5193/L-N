@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kontrollpanel</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -12,7 +13,7 @@
         Your browser does not support the video tag.
     </video>
     <div class="user-profile" id="user-profile">
-        <span id="username"></span>
+        <i class="fas fa-user-circle fa-2x"></i>
         <div class="dropdown-content" id="dropdown-content">
             <a href="#" id="logout">Logga ut</a>
         </div>
@@ -25,8 +26,8 @@
                 <p>Beräkna din provision snabbt och enkelt.</p>
             </div>
             <div class="option" onclick="location.href='daglig_omsattning.html'">
+                <i class="fa-solid fa-file-invoice fa-3x"></i>
                 <h2>Daglig omsättning</h2>
-                <p>Fyll i dagens omsättning.</p>
             </div>
             <div class="option" onclick="location.href='historik.html'">
                 <h2>Historisk Data</h2>
