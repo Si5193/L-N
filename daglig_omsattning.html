@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daglig omsättning</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -12,13 +13,16 @@
         Your browser does not support the video tag.
     </video>
     <div class="user-profile" id="user-profile">
-        <span id="username"></span>
+        <i class="fas fa-user-circle fa-2x"></i>
         <div class="dropdown-content" id="dropdown-content">
             <a href="#" id="logout">Logga ut</a>
         </div>
     </div>
     <div class="container">
-        <h1>Daglig omsättning</h1>
+        <div class="icon-header">
+            <i class="fa-solid fa-file-invoice fa-3x"></i>
+            <h1>Daglig omsättning</h1>
+        </div>
         <div class="form-and-list">
             <form id="omsattning-form">
                 <label for="date">Datum:</label>
