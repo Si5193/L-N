@@ -17,7 +17,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-async function saveRevenue() {
+export async function saveRevenue() {
     if (!currentUser) return;
     const date = document.getElementById('date').value;
     const revenue = parseFloat(document.getElementById('revenue').value);
