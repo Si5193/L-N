@@ -19,18 +19,18 @@
         </div>
     </div>
     <div class="container">
-        <h1>Daglig Omsättning</h1>
+        <h1><i class="fas fa-file-invoice"></i> Daglig Omsättning</h1>
         <form id="omsattningForm">
             <label for="date">Datum:</label>
             <input type="date" id="date" required>
             <label for="revenue">Omsättning:</label>
             <input type="number" id="revenue" required>
-            <button type="button" onclick="saveRevenue()">Spara Omsättning</button>
+            <button type="button" class="btn" onclick="saveRevenue()">Spara Omsättning</button>
         </form>
         <button id="resetRevenue" class="btn">Nollställ Daglig Omsättning</button>
+        <div id="loadingIndicator">Laddar...</div>
         <div id="revenueList"></div>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
-        <div id="loadingIndicator" style="display: none;">Laddar...</div>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
