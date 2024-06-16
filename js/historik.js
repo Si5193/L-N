@@ -59,6 +59,10 @@ function setupRealtimeListeners(uid) {
 
         Object.keys(monthlyData).forEach(monthYear => {
             const data = monthlyData[monthYear];
+            const provision = (data.revenue - (7816 * data.days)) * 0.17;
+            const dailySalary = monthlySalary / 21;
+            const totalSalary = provision + (dailySalary * data.days);
+
             const row = historyTable.insertRow();
             const cell1 = row.insertCell(0);
             const cell2 = row.insertCell(1);
