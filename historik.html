@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historisk Data</title>
+    <title>Historik</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -13,26 +14,26 @@
         <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+    <div class="user-profile" id="user-profile">
+        <i class="fas fa-user-circle fa-2x"></i>
+        <div class="dropdown-content" id="dropdown-content">
+            <a href="#" id="logout">Logga ut</a>
+        </div>
+    </div>
     <div class="container">
-        <div class="user-profile" id="user-profile">
-            <span id="username"></span>
-            <div class="dropdown-content" id="dropdown-content">
-                <a href="#" id="logout">Logga ut</a>
-            </div>
-        </div>
-        <h1>Historisk Data</h1>
-        <div id="historik-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Månad</th>
-                        <th>Omsättning</th>
-                        <th>Tjänat</th>
-                    </tr>
-                </thead>
-                <tbody id="historik-list"></tbody>
-            </table>
-        </div>
+        <h1>Historik</h1>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Månad</th>
+                    <th>Omsättning</th>
+                    <th>Lön inkl provision</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamisk innehåll här -->
+            </tbody>
+        </table>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
