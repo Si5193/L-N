@@ -30,8 +30,6 @@ function setupRealtimeListeners(uid) {
     const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
     onSnapshot(q, (querySnapshot) => {
         let monthlyData = {};
-        let totalRevenue = 0;
-        let totalSalary = 0;
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
@@ -46,31 +44,28 @@ function setupRealtimeListeners(uid) {
 
             monthlyData[monthYear].revenue += data.revenue;
             monthlyData[monthYear].days += 1;
-
-            const provision = (data.revenue - 7816) * 0.17;
-            const dailySalary = monthlySalary / 21;
-            const totalDailySalary = provision + dailySalary;
-
-            totalRevenue += data.revenue;
-            totalSalary += totalDailySalary;
         });
 
-        historyTable.innerHTML = ''; // Töm tabellen innan vi lägger till ny data
+        updateHistoryTable(monthlyData);
+    });
+}
 
-        Object.keys(monthlyData).forEach(monthYear => {
-            const data = monthlyData[monthYear];
-            const provision = (data.revenue - (7816 * data.days)) * 0.17;
-            const dailySalary = monthlySalary / 21;
-            const totalSalary = provision + (dailySalary * data.days);
+function updateHistoryTable(monthlyData) {
+    historyTable.innerHTML = ''; // Töm tabellen innan vi lägger till ny data
 
-            const row = historyTable.insertRow();
-            const cell1 = row.insertCell(0);
-            const cell2 = row.insertCell(1);
-            const cell3 = row.insertCell(2);
+    Object.keys(monthlyData).forEach(monthYear => {
+        const data = monthlyData[monthYear];
+        const provision = (data.revenue - (7816 * data.days)) * 0.17;
+        const dailySalary = monthlySalary / 21;
+        const totalSalary = provision + (dailySalary * data.days);
 
-            cell1.textContent = monthYear;
-            cell2.textContent = `${data.revenue.toFixed(2)} kr`;
-            cell3.textContent = `${totalSalary.toFixed(2)} kr`;
-        });
+        const row = historyTable.insertRow();
+        const cell1 = row.insertCell(0);
+        const cell2 = row.insertCell(1);
+        const cell3 = row.insertCell(2);
+
+        cell1.textContent = monthYear;
+        cell2.textContent = `${data.revenue.toFixed(2)} kr`;
+        cell3.textContent = `${totalSalary.toFixed(2)} kr`;
     });
 }
