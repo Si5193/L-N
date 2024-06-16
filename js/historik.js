@@ -17,7 +17,7 @@ onAuthStateChanged(auth, (user) => {
 
 async function fetchHistoricalData(uid) {
     if (!uid) return;
-    
+
     const omsattningRef = collection(db, "revenues");
     const q = query(omsattningRef, where("uid", "==", uid), orderBy("date"));
     const querySnapshot = await getDocs(q);
@@ -61,6 +61,4 @@ async function fetchHistoricalData(uid) {
 
         cell1.textContent = monthYear;
         cell2.textContent = `${data.revenue.toFixed(2)} kr`;
-        cell3.textContent = `${totalSalary.toFixed(2)} kr`;
-    });
-}
+        cell3.textContent = `${(provis
