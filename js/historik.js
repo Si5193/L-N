@@ -1,62 +1,66 @@
 import { auth, db } from './firebaseConfig.js';
-import { collection, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const historikList = document.getElementById('historik-list');
+const historyTable = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
 
 let currentUser = null;
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
-        fetchHistorik(user.uid);
+        fetchHistoricalData(user.uid);
     } else {
         window.location.href = 'index.html';
     }
 });
 
-// Funktion för att hämta och visa historisk data
-async function fetchHistorik(uid) {
+async function fetchHistoricalData(uid) {
     if (!uid) return;
-    historikList.innerHTML = ''; // Töm listan först
-    const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
+    
+    const omsattningRef = collection(db, "revenues");
+    const q = query(omsattningRef, where("uid", "==", uid), orderBy("date"));
     const querySnapshot = await getDocs(q);
 
-    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const monthlyData = {};
+    let monthlyData = {};
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const date = new Date(data.date);
-        const month = date.getMonth();
+        const month = date.toLocaleString('default', { month: 'long' });
         const year = date.getFullYear();
-        const monthYear = `${year}-${month}`;
+        const monthYear = `${month} ${year}`;
 
         if (!monthlyData[monthYear]) {
-            monthlyData[monthYear] = { revenue: 0, provision: 0 };
+            monthlyData[monthYear] = { revenue: 0, days: 0 };
         }
 
         monthlyData[monthYear].revenue += data.revenue;
-        if (data.provision) {
-            monthlyData[monthYear].provision += data.provision;
-        }
+        monthlyData[monthYear].days += 1;
     });
 
-    for (const [key, value] of Object.entries(monthlyData)) {
-        const [year, month] = key.split('-');
-        const listItem = document.createElement('tr');
-        listItem.innerHTML = `
-            <td>${monthNames[month]} ${year}</td>
-            <td>${value.revenue} kr</td>
-            <td>${value.provision ? value.provision + ' kr' : 'Ingen provision'}</td>
-        `;
-        historikList.appendChild(listItem);
-    }
-}
+    const monthlySalaryDoc = await getDocs(query(collection(db, "monthly_salaries"), where("uid", "==", uid)));
 
-// Hämta data när sidan laddas
-window.addEventListener('load', () => {
-    if (currentUser) {
-        fetchHistorik(currentUser.uid);
+    let monthlySalary = 0;
+    if (!monthlySalaryDoc.empty) {
+        monthlySalaryDoc.forEach((doc) => {
+            monthlySalary = doc.data().salary;
+        });
     }
-});
+
+    Object.keys(monthlyData).forEach(monthYear => {
+        const data = monthlyData[monthYear];
+        const provision = (data.revenue - (7816 * data.days)) * 0.17;
+        const dailySalary = monthlySalary / 21;
+        const totalSalary = provision + (dailySalary * data.days);
+
+        const row = historyTable.insertRow();
+        const cell1 = row.insertCell(0);
+        const cell2 = row.insertCell(1);
+        const cell3 = row.insertCell(2);
+
+        cell1.textContent = monthYear;
+        cell2.textContent = `${data.revenue.toFixed(2)} kr`;
+        cell3.textContent = `${totalSalary.toFixed(2)} kr`;
+    });
+}
