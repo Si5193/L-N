@@ -10,8 +10,9 @@ let monthlySalary = 0;
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
-        fetchMonthlySalary(user.uid);
-        setupRealtimeListeners(user.uid);
+        fetchMonthlySalary(user.uid).then(() => {
+            setupRealtimeListeners(user.uid);
+        });
     } else {
         window.location.href = 'index.html';
     }
