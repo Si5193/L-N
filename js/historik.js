@@ -40,10 +40,16 @@ function setupRealtimeListeners(uid) {
             const monthYear = `${month} ${year}`;
 
             if (!monthlyData[monthYear]) {
-                monthlyData[monthYear] = { revenue: 0, days: 0 };
+                monthlyData[monthYear] = { revenue: 0, days: 0, totalProvision: 0, dailySalary: 0, totalSalary: 0 };
             }
 
-            monthlyData[monthYear].revenue += data.revenue;
+            if (data.isSickDay) {
+                monthlyData[monthYear].totalProvision += data.dailyProvision;
+            } else {
+                monthlyData[monthYear].revenue += data.revenue;
+                monthlyData[monthYear].totalProvision += data.dailyProvision;
+            }
+
             monthlyData[monthYear].days += 1;
         });
 
@@ -56,17 +62,21 @@ function updateHistoryTable(monthlyData) {
 
     Object.keys(monthlyData).forEach(monthYear => {
         const data = monthlyData[monthYear];
-        const provision = (data.revenue - (7816 * data.days)) * 0.17;
         const dailySalary = monthlySalary / 21;
-        const totalSalary = provision + (dailySalary * data.days);
+        const totalDailySalary = dailySalary * data.days;
+        const totalSalary = data.totalProvision + totalDailySalary;
 
         const row = historyTable.insertRow();
         const cell1 = row.insertCell(0);
         const cell2 = row.insertCell(1);
         const cell3 = row.insertCell(2);
+        const cell4 = row.insertCell(3);
+        const cell5 = row.insertCell(4);
 
         cell1.textContent = monthYear;
         cell2.textContent = `${data.revenue.toFixed(2)} kr`;
-        cell3.textContent = `${totalSalary.toFixed(2)} kr`;
+        cell3.textContent = `${data.totalProvision.toFixed(2)} kr`;
+        cell4.textContent = `${totalDailySalary.toFixed(2)} kr`;
+        cell5.textContent = `${totalSalary.toFixed(2)} kr`;
     });
 }
