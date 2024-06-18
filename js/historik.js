@@ -23,7 +23,7 @@ onAuthStateChanged(auth, async (user) => {
 async function fetchMonthlySalary(uid) {
     try {
         console.log("Fetching monthly salary for UID: ", uid);
-        const userDocRef = doc(db, "Users", uid);
+        const userDocRef = doc(db, "users", uid);  // Korrekt väg till användarens dokument
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
             monthlySalary = userDoc.data().monthlySalary;
@@ -50,14 +50,17 @@ function setupRealtimeListeners(uid) {
             const monthYear = `${month} ${year}`;
 
             if (!monthlyData[monthYear]) {
-                monthlyData[monthYear] = { revenue: 0, days: 0, totalProvision: 0 };
+                monthlyData[monthYear] = { revenue: 0, days: 0, totalProvision: 0, totalSalary: 0 };
             }
 
             if (data.isSickDay) {
                 monthlyData[monthYear].totalProvision += data.dailyProvision || 0;
+            } else if (data.isVacationDay) {
+                monthlyData[monthYear].totalSalary += data.vacationValue || 0;
             } else {
                 monthlyData[monthYear].revenue += data.revenue || 0;
                 monthlyData[monthYear].totalProvision += ((data.revenue - 7816) * 0.17) || 0;
+                monthlyData[monthYear].totalSalary += (monthlySalary / 21) || 0;
             }
 
             monthlyData[monthYear].days += 1;
@@ -75,7 +78,7 @@ function updateHistoryTable(monthlyData) {
         const data = monthlyData[monthYear];
         const dailySalary = monthlySalary / 21 || 0;
         const totalMonthlySalary = dailySalary * data.days || 0;
-        const totalSalary = data.totalProvision + totalMonthlySalary || 0;
+        const totalSalary = data.totalProvision + totalMonthlySalary + data.totalSalary || 0;
 
         console.log("Data for month: ", monthYear, data);
         console.log("Daily Salary: ", dailySalary);
