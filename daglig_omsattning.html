@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daglig Omsättning</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
-        <source src="https://videos.pexels.com/video-files/3121459/3121459-hd_1280_720_24fps.mp4" type="video/mp4">
+        <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
     <div class="user-profile" id="user-profile">
@@ -20,21 +21,29 @@
         </div>
     </div>
     <div class="container">
-        <h1><i class="fas fa-file-invoice-dollar"></i> Daglig Omsättning</h1>
+        <h1>Daglig Omsättning</h1>
         <form id="omsattningForm">
             <label for="date">Datum:</label>
-            <input type="date" id="date" required>
+            <input type="date" id="date" name="date" required>
             <label for="revenue">Omsättning:</label>
-            <input type="number" id="revenue" required>
-            <button type="button" class="btn" onclick="saveRevenue()">Spara Omsättning</button>
+            <input type="number" id="revenue" name="revenue" step="0.01">
+            <label for="isSickDay">Sjukdag:</label>
+            <input type="checkbox" id="isSickDay" name="isSickDay">
+            <label for="isVacationDay">Semesterdag:</label>
+            <input type="checkbox" id="isVacationDay" name="isVacationDay">
+            <label for="vacationValue">Värde för semesterdag:</label>
+            <input type="number" id="vacationValue" name="vacationValue" step="0.01" disabled>
+            <button type="submit">Spara</button>
         </form>
-        <button id="resetRevenue" class="btn">Nollställ Daglig Omsättning</button>
-        <div id="loadingIndicator" style="display: none;">Laddar...</div>
-        <div id="revenueList"></div>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
+    <script>
+        document.getElementById('isVacationDay').addEventListener('change', function() {
+            document.getElementById('vacationValue').disabled = !this.checked;
+        });
+    </script>
 </body>
 </html>
