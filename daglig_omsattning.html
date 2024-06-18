@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .fade-in {
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -31,19 +47,29 @@
             <input type="checkbox" id="isSickDay" name="isSickDay">
             <label for="isVacationDay">Semesterdag:</label>
             <input type="checkbox" id="isVacationDay" name="isVacationDay">
-            <label for="vacationValue">Värde för semesterdag:</label>
-            <input type="number" id="vacationValue" name="vacationValue" step="0.01" disabled>
+            <div id="vacationValueContainer" class="hidden fade-in">
+                <label for="vacationValue">Värde för semesterdag:</label>
+                <input type="number" id="vacationValue" name="vacationValue" step="0.01">
+            </div>
             <button type="submit">Spara</button>
             <button type="button" id="resetValues">Nollställ värden</button>
         </form>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
+        <div id="dailyDataContainer"></div>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
     <script>
         document.getElementById('isVacationDay').addEventListener('change', function() {
-            document.getElementById('vacationValue').disabled = !this.checked;
+            const vacationValueContainer = document.getElementById('vacationValueContainer');
+            if (this.checked) {
+                vacationValueContainer.classList.remove('hidden');
+                vacationValueContainer.classList.add('fade-in');
+            } else {
+                vacationValueContainer.classList.add('hidden');
+                vacationValueContainer.classList.remove('fade-in');
+            }
         });
     </script>
 </body>
