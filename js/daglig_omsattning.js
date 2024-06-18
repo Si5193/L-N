@@ -1,5 +1,5 @@
 import { auth, db } from './firebaseConfig.js';
-import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const omsattningForm = document.getElementById('omsattningForm');
@@ -37,7 +37,6 @@ async function fetchRevenues(uid) {
         const revenue = data.revenue.toFixed(2);
         const dailyProvision = data.dailyProvision.toFixed(2);
         const totalSalary = data.totalSalary.toFixed(2);
-        const isSickDay = data.isSickDay ? 'Ja' : 'Nej';
         const isVacationDay = data.isVacationDay ? 'Ja' : 'Nej';
         const vacationValue = data.isVacationDay ? data.vacationValue.toFixed(2) : '';
 
@@ -48,7 +47,6 @@ async function fetchRevenues(uid) {
             <p>Omsättning: ${revenue} kr</p>
             <p>Daglig Provision: ${dailyProvision} kr</p>
             <p>Totallön: ${totalSalary} kr</p>
-            <p>Sjukdag: ${isSickDay}</p>
             <p>Semesterdag: ${isVacationDay}</p>
             ${isVacationDay === 'Ja' ? `<p>Värde för semesterdag: ${vacationValue} kr</p>` : ''}
         `;
@@ -60,7 +58,6 @@ omsattningForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const date = document.getElementById('date').value;
     const revenue = parseFloat(document.getElementById('revenue').value) || 0;
-    const isSickDay = document.getElementById('isSickDay').checked;
     const isVacationDay = document.getElementById('isVacationDay').checked;
     const vacationValue = parseFloat(document.getElementById('vacationValue').value) || 0;
     const dailySalary = monthlySalary / 21;
@@ -68,10 +65,7 @@ omsattningForm.addEventListener('submit', async (e) => {
     let dailyProvision = 0;
     let totalSalary = 0;
 
-    if (isSickDay) {
-        dailyProvision = await handleSickDay(date, dailySalary);
-        totalSalary = dailySalary * 0.8;
-    } else if (isVacationDay) {
+    if (isVacationDay) {
         dailyProvision = 0;
         totalSalary = vacationValue;
     } else {
@@ -85,7 +79,6 @@ omsattningForm.addEventListener('submit', async (e) => {
             date: date,
             revenue: revenue,
             dailyProvision: dailyProvision,
-            isSickDay: isSickDay,
             isVacationDay: isVacationDay,
             vacationValue: vacationValue,
             totalSalary: totalSalary,
@@ -103,7 +96,7 @@ resetValuesButton.addEventListener('click', async () => {
     try {
         const q = query(collection(db, 'revenues'), where('uid', '==', currentUser.uid));
         const querySnapshot = await getDocs(q);
-        const batch = db.batch();
+        const batch = writeBatch(db);
         querySnapshot.forEach((doc) => {
             batch.delete(doc.ref);
         });
@@ -114,30 +107,3 @@ resetValuesButton.addEventListener('click', async () => {
         console.error('Error resetting values: ', error);
     }
 });
-
-async function handleSickDay(date, dailySalary) {
-    let sickDays = 0;
-    let provision = 0;
-
-    try {
-        const q = query(collection(db, "revenues"), where("uid", "==", currentUser.uid), where("isSickDay", "==", true));
-        const querySnapshot = await getDocs(q);
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            if (new Date(data.date) <= new Date(date)) {
-                sickDays++;
-                if (sickDays == 1) {
-                    provision -= dailySalary; // Karensdag
-                } else {
-                    provision += dailySalary * 0.8; // 80% av dagslön
-                }
-            }
-        });
-
-        return provision;
-    } catch (error) {
-        console.error('Error handling sick day: ', error);
-        return 0;
-    }
-}
