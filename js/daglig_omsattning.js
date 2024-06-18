@@ -1,6 +1,5 @@
 import { auth, db } from './firebaseConfig.js';
-import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Säkerställ att orderBy importeras korrekt
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const omsattningForm = document.getElementById('omsattningForm');
@@ -10,10 +9,10 @@ const dailyDataContainer = document.getElementById('dailyDataContainer');
 let currentUser = null;
 let monthlySalary = 0;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
-        fetchMonthlySalary(user.uid);
+        await fetchMonthlySalary(user.uid);
         fetchRevenues(user.uid);
     } else {
         window.location.href = 'index.html';
@@ -35,21 +34,13 @@ async function fetchRevenues(uid) {
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const date = new Date(data.date).toLocaleDateString();
-        const revenue = data.revenue.toFixed(2);
-        const dailyProvision = data.dailyProvision.toFixed(2);
-        const totalSalary = data.totalSalary.toFixed(2);
-        const isVacationDay = data.isVacationDay ? 'Ja' : 'Nej';
-        const vacationValue = data.isVacationDay ? data.vacationValue.toFixed(2) : '';
+        const revenue = data.revenue ? data.revenue.toFixed(2) : '0.00';
 
         const dayData = document.createElement('div');
         dayData.classList.add('day-data');
         dayData.innerHTML = `
             <p>Datum: ${date}</p>
             <p>Omsättning: ${revenue} kr</p>
-            <p>Daglig Provision: ${dailyProvision} kr</p>
-            <p>Totallön: ${totalSalary} kr</p>
-            <p>Semesterdag: ${isVacationDay}</p>
-            ${isVacationDay === 'Ja' ? `<p>Värde för semesterdag: ${vacationValue} kr</p>` : ''}
         `;
         dailyDataContainer.appendChild(dayData);
     });
