@@ -10,24 +10,31 @@ let monthlySalary = 0;
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
+        console.log("User logged in: ", user.uid);
         fetchMonthlySalary(user.uid).then(() => {
+            console.log("Monthly Salary fetched: ", monthlySalary);
             setupRealtimeListeners(user.uid);
         });
     } else {
+        console.log("No user logged in");
         window.location.href = 'index.html';
     }
 });
 
 async function fetchMonthlySalary(uid) {
-    const monthlySalaryDoc = await getDocs(query(collection(db, "monthly_salaries"), where("uid", "==", uid)));
-    if (!monthlySalaryDoc.empty) {
-        monthlySalaryDoc.forEach((doc) => {
-            monthlySalary = doc.data().salary;
-        });
-    } else {
-        console.error("No monthly salary found for user");
+    try {
+        const monthlySalaryDoc = await getDocs(query(collection(db, "monthly_salaries"), where("uid", "==", uid)));
+        if (!monthlySalaryDoc.empty) {
+            monthlySalaryDoc.forEach((doc) => {
+                monthlySalary = doc.data().salary;
+                console.log("Monthly Salary for user: ", monthlySalary);
+            });
+        } else {
+            console.error("No monthly salary found for user");
+        }
+    } catch (error) {
+        console.error("Error fetching monthly salary: ", error);
     }
-    console.log("Monthly Salary: ", monthlySalary);
 }
 
 function setupRealtimeListeners(uid) {
@@ -37,6 +44,7 @@ function setupRealtimeListeners(uid) {
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
+            console.log("Revenue data: ", data);
             const date = new Date(data.date);
             const month = date.toLocaleString('default', { month: 'long' });
             const year = date.getFullYear();
@@ -50,7 +58,7 @@ function setupRealtimeListeners(uid) {
                 monthlyData[monthYear].totalProvision += data.dailyProvision || 0;
             } else {
                 monthlyData[monthYear].revenue += data.revenue || 0;
-                monthlyData[monthYear].totalProvision += (data.revenue - 7816) * 0.17 || 0;
+                monthlyData[monthYear].totalProvision += ((data.revenue - 7816) * 0.17) || 0;
             }
 
             monthlyData[monthYear].days += 1;
@@ -66,9 +74,9 @@ function updateHistoryTable(monthlyData) {
 
     Object.keys(monthlyData).forEach(monthYear => {
         const data = monthlyData[monthYear];
-        const dailySalary = monthlySalary / 21;
-        const totalMonthlySalary = dailySalary * data.days;
-        const totalSalary = data.totalProvision + totalMonthlySalary;
+        const dailySalary = monthlySalary / 21 || 0;
+        const totalMonthlySalary = dailySalary * data.days || 0;
+        const totalSalary = data.totalProvision + totalMonthlySalary || 0;
 
         console.log("Data for month: ", monthYear, data);
         console.log("Daily Salary: ", dailySalary);
