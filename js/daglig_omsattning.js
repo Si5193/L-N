@@ -1,8 +1,9 @@
 import { auth, db } from './firebaseConfig.js';
-import { collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const omsattningForm = document.getElementById('omsattningForm');
+const resetValuesButton = document.getElementById('resetValues');
 
 let currentUser = null;
 let monthlySalary = 0;
@@ -17,7 +18,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 async function fetchMonthlySalary(uid) {
-    const userDocRef = doc(db, "Users", uid);
+    const userDocRef = doc(db, "users", uid);
     const userDoc = await getDoc(userDocRef);
     if (userDoc.exists()) {
         monthlySalary = userDoc.data().monthlySalary;
@@ -37,15 +38,12 @@ omsattningForm.addEventListener('submit', async (e) => {
     let totalSalary = 0;
 
     if (isSickDay) {
-        // Hantera sjukdag
-        dailyProvision = handleSickDay(date, dailySalary);
-        totalSalary = dailySalary * 0.8; // 80% av dagslön
+        dailyProvision = await handleSickDay(date, dailySalary);
+        totalSalary = dailySalary * 0.8;
     } else if (isVacationDay) {
-        // Hantera semesterdag
         dailyProvision = 0;
         totalSalary = vacationValue;
     } else {
-        // Hantera omsättningsdag
         dailyProvision = (revenue - 7816) * 0.17 + dailySalary;
         totalSalary = dailyProvision;
     }
@@ -69,31 +67,44 @@ omsattningForm.addEventListener('submit', async (e) => {
     }
 });
 
-function handleSickDay(date, dailySalary) {
+resetValuesButton.addEventListener('click', async () => {
+    try {
+        const q = query(collection(db, 'revenues'), where('uid', '==', currentUser.uid));
+        const querySnapshot = await getDocs(q);
+        const batch = db.batch();
+        querySnapshot.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+        alert('Värden nollställda!');
+    } catch (error) {
+        console.error('Error resetting values: ', error);
+    }
+});
+
+async function handleSickDay(date, dailySalary) {
     let sickDays = 0;
     let provision = 0;
-    let isKarensdag = true;
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            const q = query(collection(db, "revenues"), where("uid", "==", currentUser.uid), where("isSickDay", "==", true));
-            const querySnapshot = await getDocs(q);
+    try {
+        const q = query(collection(db, "revenues"), where("uid", "==", currentUser.uid), where("isSickDay", "==", true));
+        const querySnapshot = await getDocs(q);
 
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (new Date(data.date) <= new Date(date)) {
-                    sickDays++;
-                    if (sickDays == 1) {
-                        provision -= dailySalary; // Karensdag
-                    } else {
-                        provision += dailySalary * 0.8; // 80% av dagslön
-                    }
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (new Date(data.date) <= new Date(date)) {
+                sickDays++;
+                if (sickDays == 1) {
+                    provision -= dailySalary; // Karensdag
+                } else {
+                    provision += dailySalary * 0.8; // 80% av dagslön
                 }
-            });
+            }
+        });
 
-            resolve(provision);
-        } catch (error) {
-            reject(error);
-        }
-    });
+        return provision;
+    } catch (error) {
+        console.error('Error handling sick day: ', error);
+        return 0;
+    }
 }
