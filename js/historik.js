@@ -1,5 +1,5 @@
 import { auth, db } from './firebaseConfig.js';
-import { collection, query, where, getDocs, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, query, collection, where, getDocs, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const historyTable = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
@@ -7,14 +7,13 @@ const historyTable = document.getElementById('historyTable').getElementsByTagNam
 let currentUser = null;
 let monthlySalary = 0;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         console.log("User logged in: ", user.uid);
-        fetchMonthlySalary(user.uid).then(() => {
-            console.log("Monthly Salary fetched: ", monthlySalary);
-            setupRealtimeListeners(user.uid);
-        });
+        await fetchMonthlySalary(user.uid);
+        console.log("Monthly Salary fetched: ", monthlySalary);
+        setupRealtimeListeners(user.uid);
     } else {
         console.log("No user logged in");
         window.location.href = 'index.html';
@@ -24,14 +23,13 @@ onAuthStateChanged(auth, (user) => {
 async function fetchMonthlySalary(uid) {
     try {
         console.log("Fetching monthly salary for UID: ", uid);
-        const monthlySalaryDoc = await getDocs(query(collection(db, "monthly_salaries"), where("uid", "==", uid)));
-        if (!monthlySalaryDoc.empty) {
-            monthlySalaryDoc.forEach((doc) => {
-                monthlySalary = doc.data().monthlySalary;
-                console.log("Monthly Salary for user: ", monthlySalary);
-            });
+        const userDocRef = doc(db, "Users", uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+            monthlySalary = userDoc.data().monthlySalary;
+            console.log("Monthly Salary for user: ", monthlySalary);
         } else {
-            console.error("No monthly salary found for user with UID: ", uid);
+            console.error("No user document found for UID: ", uid);
         }
     } catch (error) {
         console.error("Error fetching monthly salary: ", error);
