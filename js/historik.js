@@ -23,14 +23,15 @@ onAuthStateChanged(auth, (user) => {
 
 async function fetchMonthlySalary(uid) {
     try {
+        console.log("Fetching monthly salary for UID: ", uid);
         const monthlySalaryDoc = await getDocs(query(collection(db, "monthly_salaries"), where("uid", "==", uid)));
         if (!monthlySalaryDoc.empty) {
             monthlySalaryDoc.forEach((doc) => {
-                monthlySalary = doc.data().salary;
+                monthlySalary = doc.data().monthlySalary;
                 console.log("Monthly Salary for user: ", monthlySalary);
             });
         } else {
-            console.error("No monthly salary found for user");
+            console.error("No monthly salary found for user with UID: ", uid);
         }
     } catch (error) {
         console.error("Error fetching monthly salary: ", error);
