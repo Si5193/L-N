@@ -1,9 +1,10 @@
 import { auth, db } from './firebaseConfig.js';
-import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const omsattningForm = document.getElementById('omsattningForm');
 const resetValuesButton = document.getElementById('resetValues');
+const dailyDataContainer = document.getElementById('dailyDataContainer');
 
 let currentUser = null;
 let monthlySalary = 0;
@@ -12,6 +13,7 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
         fetchMonthlySalary(user.uid);
+        fetchRevenues(user.uid);
     } else {
         window.location.href = 'index.html';
     }
@@ -25,6 +27,35 @@ async function fetchMonthlySalary(uid) {
     }
 }
 
+async function fetchRevenues(uid) {
+    const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
+    const querySnapshot = await getDocs(q);
+    dailyDataContainer.innerHTML = '';
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const date = new Date(data.date).toLocaleDateString();
+        const revenue = data.revenue.toFixed(2);
+        const dailyProvision = data.dailyProvision.toFixed(2);
+        const totalSalary = data.totalSalary.toFixed(2);
+        const isSickDay = data.isSickDay ? 'Ja' : 'Nej';
+        const isVacationDay = data.isVacationDay ? 'Ja' : 'Nej';
+        const vacationValue = data.isVacationDay ? data.vacationValue.toFixed(2) : '';
+
+        const dayData = document.createElement('div');
+        dayData.classList.add('day-data');
+        dayData.innerHTML = `
+            <p>Datum: ${date}</p>
+            <p>Omsättning: ${revenue} kr</p>
+            <p>Daglig Provision: ${dailyProvision} kr</p>
+            <p>Totallön: ${totalSalary} kr</p>
+            <p>Sjukdag: ${isSickDay}</p>
+            <p>Semesterdag: ${isVacationDay}</p>
+            ${isVacationDay === 'Ja' ? `<p>Värde för semesterdag: ${vacationValue} kr</p>` : ''}
+        `;
+        dailyDataContainer.appendChild(dayData);
+    });
+}
+
 omsattningForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const date = document.getElementById('date').value;
@@ -33,7 +64,7 @@ omsattningForm.addEventListener('submit', async (e) => {
     const isVacationDay = document.getElementById('isVacationDay').checked;
     const vacationValue = parseFloat(document.getElementById('vacationValue').value) || 0;
     const dailySalary = monthlySalary / 21;
-    
+
     let dailyProvision = 0;
     let totalSalary = 0;
 
@@ -62,6 +93,7 @@ omsattningForm.addEventListener('submit', async (e) => {
         });
         alert('Omsättning sparad!');
         omsattningForm.reset();
+        fetchRevenues(currentUser.uid); // Uppdatera visningen av daglig data efter sparande
     } catch (error) {
         console.error('Error adding document: ', error);
     }
@@ -77,6 +109,7 @@ resetValuesButton.addEventListener('click', async () => {
         });
         await batch.commit();
         alert('Värden nollställda!');
+        dailyDataContainer.innerHTML = ''; // Töm visningen av daglig data efter nollställning
     } catch (error) {
         console.error('Error resetting values: ', error);
     }
