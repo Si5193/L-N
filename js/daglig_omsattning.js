@@ -1,5 +1,6 @@
 import { auth, db } from './firebaseConfig.js';
-import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, deleteDoc, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Säkerställ att orderBy importeras korrekt
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const omsattningForm = document.getElementById('omsattningForm');
