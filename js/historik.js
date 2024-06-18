@@ -24,6 +24,8 @@ async function fetchMonthlySalary(uid) {
         monthlySalaryDoc.forEach((doc) => {
             monthlySalary = doc.data().salary;
         });
+    } else {
+        console.error("No monthly salary found for user");
     }
 }
 
@@ -47,7 +49,7 @@ function setupRealtimeListeners(uid) {
                 monthlyData[monthYear].totalProvision += data.dailyProvision;
             } else {
                 monthlyData[monthYear].revenue += data.revenue;
-                monthlyData[monthYear].totalProvision += data.dailyProvision;
+                monthlyData[monthYear].totalProvision += (data.revenue - 7816) * 0.17;
             }
 
             monthlyData[monthYear].days += 1;
