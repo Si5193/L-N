@@ -27,6 +27,7 @@ async function fetchMonthlySalary(uid) {
     } else {
         console.error("No monthly salary found for user");
     }
+    console.log("Monthly Salary: ", monthlySalary);
 }
 
 function setupRealtimeListeners(uid) {
@@ -46,15 +47,16 @@ function setupRealtimeListeners(uid) {
             }
 
             if (data.isSickDay) {
-                monthlyData[monthYear].totalProvision += data.dailyProvision;
+                monthlyData[monthYear].totalProvision += data.dailyProvision || 0;
             } else {
-                monthlyData[monthYear].revenue += data.revenue;
-                monthlyData[monthYear].totalProvision += (data.revenue - 7816) * 0.17;
+                monthlyData[monthYear].revenue += data.revenue || 0;
+                monthlyData[monthYear].totalProvision += (data.revenue - 7816) * 0.17 || 0;
             }
 
             monthlyData[monthYear].days += 1;
         });
 
+        console.log("Monthly Data: ", monthlyData);
         updateHistoryTable(monthlyData);
     });
 }
@@ -67,6 +69,11 @@ function updateHistoryTable(monthlyData) {
         const dailySalary = monthlySalary / 21;
         const totalMonthlySalary = dailySalary * data.days;
         const totalSalary = data.totalProvision + totalMonthlySalary;
+
+        console.log("Data for month: ", monthYear, data);
+        console.log("Daily Salary: ", dailySalary);
+        console.log("Total Monthly Salary: ", totalMonthlySalary);
+        console.log("Total Salary: ", totalSalary);
 
         const row = historyTable.insertRow();
         const cell1 = row.insertCell(0);
