@@ -4,9 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historik</title>
-    <link rel="stylesheet" href="css/historik.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .fade-in {
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -21,20 +46,7 @@
     </div>
     <div class="container">
         <h1>Historik</h1>
-        <table id="historyTable">
-            <thead>
-                <tr>
-                    <th>Månad</th>
-                    <th>Omsättning</th>
-                    <th>Provision</th>
-                    <th>Månadslön</th>
-                    <th>Total Lön</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Dynamiskt innehåll här -->
-            </tbody>
-        </table>
+        <div id="historyContainer"></div>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
