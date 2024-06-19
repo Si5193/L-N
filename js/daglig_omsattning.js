@@ -2,6 +2,7 @@ import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getRedDays } from './red_days.js';
+import { eachDayOfInterval, format, isSunday } from 'date-fns';
 
 const omsattningForm = document.getElementById('omsattningForm');
 const resetValuesButton = document.getElementById('resetValues');
