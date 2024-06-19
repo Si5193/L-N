@@ -1,6 +1,7 @@
 import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getRedDays } from './red_days.js';
 
 const omsattningForm = document.getElementById('omsattningForm');
 const resetValuesButton = document.getElementById('resetValues');
@@ -8,11 +9,14 @@ const dailyDataTable = document.getElementById('dailyDataTable').getElementsByTa
 
 let currentUser = null;
 let monthlySalary = 0;
+let redDays = [];
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         await fetchMonthlySalary(user.uid);
+        const currentYear = new Date().getFullYear();
+        redDays = getRedDays(currentYear);
         fetchRevenues(user.uid);
     } else {
         window.location.href = 'index.html';
@@ -101,3 +105,20 @@ resetValuesButton.addEventListener('click', async () => {
         console.error('Error resetting values: ', error);
     }
 });
+
+function getWorkingDays(year, month) {
+    let workingDays = 0;
+    let totalDays = new Date(year, month, 0).getDate();
+
+    for (let day = 1; day <= totalDays; day++) {
+        let currentDate = new Date(year, month - 1, day);
+        let currentDay = currentDate.getDay();
+        let formattedDate = currentDate.toISOString().split('T')[0];
+
+        if (currentDay !== 0 && currentDay !== 6 && !redDays.includes(formattedDate)) {
+            workingDays++;
+        }
+    }
+
+    return workingDays;
+}
