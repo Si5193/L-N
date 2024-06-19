@@ -1,5 +1,5 @@
 import { auth, db } from './firebaseConfig.js';
-import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const historyContainer = document.getElementById('historyContainer');
@@ -38,8 +38,6 @@ async function fetchRevenues(uid) {
         const date = new Date(data.date).toLocaleDateString();
         const revenue = data.revenue ? data.revenue.toFixed(2) : '0.00';
         const dailyProvision = data.dailyProvision ? data.dailyProvision.toFixed(2) : '0.00';
-        const isVacationDay = data.isVacationDay ? 'Ja' : 'Nej';
-        const vacationValue = data.isVacationDay ? data.vacationValue.toFixed(2) : '';
 
         totalRevenue += parseFloat(revenue);
         totalProvision += parseFloat(dailyProvision);
@@ -63,7 +61,7 @@ async function fetchRevenues(uid) {
     summaryData.innerHTML = `
         <p>Total Omsättning: ${totalRevenue.toFixed(2)} kr</p>
         <p>Total Provision: ${totalProvision.toFixed(2)} kr</p>
-        <p>Total Månadslön: ${totalMonthlySalary.toFixed(2)} kr</p>
+        <pTotal Månadslön: ${totalMonthlySalary.toFixed(2)} kr</p>
         <p>Total Lön inkl Provision: ${totalIncome.toFixed(2)} kr</p>
     `;
     historyContainer.appendChild(summaryData);
