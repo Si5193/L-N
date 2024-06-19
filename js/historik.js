@@ -36,6 +36,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const querySnapshot = await getDocs(q);
 
         historyContainer.innerHTML = '';
+        const table = document.createElement('table');
+        table.classList.add('history-table');
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Omsättning</th>
+                    <th>Provision</th>
+                    <th>Dagslön</th>
+                    <th>Total Lön inkl Provision</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+        const tbody = table.querySelector('tbody');
+        historyContainer.appendChild(table);
 
         let totalRevenue = 0;
         let totalProvision = 0;
@@ -45,34 +61,37 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = doc.data();
             const date = new Date(data.date).toLocaleDateString();
             const revenue = data.revenue ? data.revenue.toFixed(2) : '0.00';
-            const dailyProvision = data.dailyProvision ? data.dailyProvision.toFixed(2) : '0.00';
+            const provision = (data.revenue - 7816) * 0.17;
+            const dailySalary = monthlySalary / 21;
+            const totalDayEarnings = provision + dailySalary;
 
             totalRevenue += parseFloat(revenue);
-            totalProvision += parseFloat(dailyProvision);
+            totalProvision += parseFloat(provision);
             totalDays++;
 
-            const dayData = document.createElement('div');
-            dayData.classList.add('day-data');
-            dayData.innerHTML = `
-                <p>Datum: ${date}</p>
-                <p>Omsättning: ${revenue} kr</p>
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${date}</td>
+                <td>${revenue} kr</td>
+                <td>${provision.toFixed(2)} kr</td>
+                <td>${dailySalary.toFixed(2)} kr</td>
+                <td>${totalDayEarnings.toFixed(2)} kr</td>
             `;
-            historyContainer.appendChild(dayData);
+            tbody.appendChild(row);
         });
 
-        const dailySalary = monthlySalary / 21;
-        const totalMonthlySalary = dailySalary * totalDays;
+        const totalMonthlySalary = (monthlySalary / 21) * totalDays;
         const totalIncome = totalProvision + totalMonthlySalary;
 
-        const summaryData = document.createElement('div');
-        summaryData.classList.add('summary-data');
-        summaryData.innerHTML = `
-            <p>Total Omsättning: ${totalRevenue.toFixed(2)} kr</p>
-            <p>Total Provision: ${totalProvision.toFixed(2)} kr</p>
-            <p>Total Månadslön: ${totalMonthlySalary.toFixed(2)} kr</p>
-            <p>Total Lön inkl Provision: ${totalIncome.toFixed(2)} kr</p>
+        const summaryRow = document.createElement('tr');
+        summaryRow.innerHTML = `
+            <td><strong>Total</strong></td>
+            <td>${totalRevenue.toFixed(2)} kr</td>
+            <td>${totalProvision.toFixed(2)} kr</td>
+            <td>${totalMonthlySalary.toFixed(2)} kr</td>
+            <td>${totalIncome.toFixed(2)} kr</td>
         `;
-        historyContainer.appendChild(summaryData);
+        tbody.appendChild(summaryRow);
     }
 
     const observer = new MutationObserver((mutations) => {
