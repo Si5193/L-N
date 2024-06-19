@@ -1,4 +1,4 @@
-import { eachDayOfInterval, format, isSaturday, isSunday } from 'https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.esm.js';
+import { eachDayOfInterval, format, isSunday } from 'date-fns';
 
 export function getRedDays(year) {
     const fixedHolidays = [
@@ -30,7 +30,7 @@ export function getRedDays(year) {
     const midsummerEve = eachDayOfInterval({
         start: new Date(year, 5, 19),
         end: new Date(year, 5, 25)
-    }).find(date => isFriday(date));
+    }).find(date => date.getDay() === 5);
     allHolidays.push(format(midsummerEve, 'yyyy-MM-dd'));
 
     return allHolidays;
