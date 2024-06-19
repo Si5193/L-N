@@ -6,36 +6,10 @@
     <title>Daglig Omsättning</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/daglig_omsattning.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        .hidden {
-            display: none;
-        }
-        .fade-in {
-            animation: fadeIn 1s;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js"></script>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -52,47 +26,36 @@
         <h1>Daglig Omsättning</h1>
         <form id="omsattningForm">
             <label for="date">Datum:</label>
-            <input type="date" id="date" name="date" required>
+            <input type="date" id="date" required>
             <label for="revenue">Omsättning:</label>
-            <input type="number" id="revenue" name="revenue" step="0.01">
-            <label for="isVacationDay">Semesterdag:</label>
-            <input type="checkbox" id="isVacationDay" name="isVacationDay">
-            <div id="vacationValueContainer" class="hidden fade-in">
+            <input type="number" id="revenue" required>
+            <input type="checkbox" id="isVacationDay">
+            <label for="isVacationDay">Semesterdag</label>
+            <div id="vacationValueContainer" class="hidden">
                 <label for="vacationValue">Värde för semesterdag:</label>
-                <input type="number" id="vacationValue" name="vacationValue" step="0.01">
+                <input type="number" id="vacationValue">
             </div>
-            <button type="submit">Spara</button>
-            <button type="button" id="resetValues">Nollställ värden</button>
+            <input type="checkbox" id="isSickDay">
+            <label for="isSickDay">Sjukdag/VAB</label>
+            <button type="submit">Spara omsättning</button>
         </form>
+        <button id="resetValues">Nollställ värden</button>
+        <table id="dailyDataTable">
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Omsättning</th>
+                    <th>Semesterdag</th>
+                    <th>Värde för semesterdag</th>
+                    <th>Sjukdag/VAB</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
-        <div id="dailyDataContainer">
-            <table id="dailyDataTable">
-                <thead>
-                    <tr>
-                        <th>Datum</th>
-                        <th>Omsättning</th>
-                        <th>Semesterdag</th>
-                        <th>Värde för Semesterdag</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
-    <script>
-        document.getElementById('isVacationDay').addEventListener('change', function() {
-            const vacationValueContainer = document.getElementById('vacationValueContainer');
-            if (this.checked) {
-                vacationValueContainer.classList.remove('hidden');
-                vacationValueContainer.classList.add('fade-in');
-            } else {
-                vacationValueContainer.classList.add('hidden');
-                vacationValueContainer.classList.remove('fade-in');
-            }
-        });
-    </script>
 </body>
-</html
+</html>
