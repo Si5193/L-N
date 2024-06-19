@@ -1,6 +1,7 @@
 import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getRedDays } from './red_days.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     const historyContainer = document.getElementById('historyContainer');
@@ -17,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (user) {
             currentUser = user;
             await fetchMonthlySalary(user.uid);
+            const currentYear = new Date().getFullYear();
+            redDays = getRedDays(currentYear);
             fetchRevenues(user.uid);
         } else {
             window.location.href = 'index.html';
@@ -95,14 +98,4 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         tbody.appendChild(summaryRow);
     }
-
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList') {
-                console.log('Noder har lagts till eller tagits bort.');
-            }
-        });
-    });
-
-    observer.observe(historyContainer, { childList: true });
 });
