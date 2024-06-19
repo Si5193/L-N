@@ -96,4 +96,26 @@ document.addEventListener("DOMContentLoaded", () => {
         summaryRow.innerHTML = `
             <td><strong>Total</strong></td>
             <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalRevenue, 0).toFixed(2)} kr</td>
-            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data
+            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalProvision, 0).toFixed(2)} kr</td>
+            <td>${totalIncome.toFixed(2)} kr</td>
+        `;
+        tbody.appendChild(summaryRow);
+    }
+
+    function getWorkingDays(year, month) {
+        let workingDays = 0;
+        let totalDays = new Date(year, month, 0).getDate();
+
+        for (let day = 1; day <= totalDays; day++) {
+            let currentDate = new Date(year, month - 1, day);
+            let currentDay = currentDate.getDay();
+            let formattedDate = currentDate.toISOString().split('T')[0];
+
+            if (currentDay !== 0 && currentDay !== 6 && !redDays.includes(formattedDate)) {
+                workingDays++;
+            }
+        }
+
+        return workingDays;
+    }
+});
