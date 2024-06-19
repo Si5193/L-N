@@ -58,7 +58,13 @@ omsattningForm.addEventListener('submit', async (e) => {
     const revenue = parseFloat(document.getElementById('revenue').value) || 0;
     const isVacationDay = document.getElementById('isVacationDay').checked;
     const vacationValue = parseFloat(document.getElementById('vacationValue').value) || 0;
+
     const dailySalary = monthlySalary / 21;
+    const month = new Date(date).getMonth() + 1;
+    const year = new Date(date).getFullYear();
+    const workingDays = getWorkingDays(year, month);
+    const dailyThreshold = 7816;
+    const monthlyThreshold = dailyThreshold * workingDays;
 
     let dailyProvision = 0;
     let totalSalary = 0;
@@ -67,8 +73,9 @@ omsattningForm.addEventListener('submit', async (e) => {
         dailyProvision = 0;
         totalSalary = vacationValue;
     } else {
-        dailyProvision = (revenue - 7816) * 0.17 + dailySalary;
-        totalSalary = dailyProvision;
+        const dailyRevenueThreshold = revenue > dailyThreshold ? revenue - dailyThreshold : 0;
+        dailyProvision = dailyRevenueThreshold * 0.17;
+        totalSalary = dailyProvision + dailySalary;
     }
 
     try {
