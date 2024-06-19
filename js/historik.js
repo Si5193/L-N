@@ -62,7 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const date = new Date(data.date);
             const month = date.toLocaleString('default', { month: 'long', year: 'numeric' });
             const revenue = data.revenue ? data.revenue : 0;
-            const provision = (revenue - 7816) * 0.17;
+            const workingDays = getWorkingDays(date.getFullYear(), date.getMonth() + 1);
+            const monthlyThreshold = 7816 * workingDays;
+            const provision = (revenue - monthlyThreshold) > 0 ? (revenue - monthlyThreshold) * 0.17 : 0;
             const dailySalary = monthlySalary / 21;
             const totalDayEarnings = provision + dailySalary;
 
