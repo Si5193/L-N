@@ -2,7 +2,9 @@ import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getRedDays } from './red_days.js';
-import { eachDayOfInterval, format, isSunday, parseISO } from 'https://cdn.jsdelivr.net/npm/date-fns@2.29.2/dist/date-fns.min.js';
+
+// Inkludera date-fns funktioner direkt från global scope
+const { eachDayOfInterval, format, isSunday, parseISO, addDays, subDays, isFriday } = window.dateFns;
 
 const omsattningForm = document.getElementById('omsattningForm');
 const resetValuesButton = document.getElementById('resetValues');
