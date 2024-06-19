@@ -28,7 +28,14 @@ async function fetchMonthlySalary(uid) {
 async function fetchRevenues(uid) {
     const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
     const querySnapshot = await getDocs(q);
-    historyContainer.innerHTML = '';
+
+    if (historyContainer) {
+        historyContainer.innerHTML = '';
+    } else {
+        console.error("historyContainer element is not found.");
+        return;
+    }
+
     let totalRevenue = 0;
     let totalProvision = 0;
     let totalDays = 0;
@@ -67,13 +74,17 @@ async function fetchRevenues(uid) {
     historyContainer.appendChild(summaryData);
 }
 
-// Använd MutationObserver istället för DOMNodeInserted
-const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-            console.log('Noder har lagts till eller tagits bort.');
-        }
+// Kontrollera att historyContainer existerar innan vi observerar det
+if (historyContainer) {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                console.log('Noder har lagts till eller tagits bort.');
+            }
+        });
     });
-});
 
-observer.observe(historyContainer, { childList: true });
+    observer.observe(historyContainer, { childList: true });
+} else {
+    console.error("historyContainer element is not found.");
+}
