@@ -23,6 +23,18 @@
                 opacity: 1;
             }
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -53,7 +65,19 @@
             <button type="button" id="resetValues">Nollställ värden</button>
         </form>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
-        <div id="dailyDataContainer"></div>
+        <div id="dailyDataContainer">
+            <table id="dailyDataTable">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Omsättning</th>
+                        <th>Semesterdag</th>
+                        <th>Värde för Semesterdag</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
@@ -71,4 +95,4 @@
         });
     </script>
 </body>
-</html>
+</html
