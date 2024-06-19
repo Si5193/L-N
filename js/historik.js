@@ -2,7 +2,7 @@ import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getRedDays } from './red_days.js';
-import { eachDayOfInterval, format, isSunday } from 'date-fns';
+import { eachDayOfInterval, format, isSunday } from 'https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     const historyContainer = document.getElementById('historyContainer');
@@ -89,33 +89,4 @@ document.addEventListener("DOMContentLoaded", () => {
             tbody.appendChild(row);
         }
 
-        const totalMonthlySalary = Object.values(monthlyData).reduce((acc, data) => acc + (monthlySalary / 21 * data.totalEarnings), 0);
-        const totalIncome = Object.values(monthlyData).reduce((acc, data) => acc + data.totalEarnings, 0);
-
-        const summaryRow = document.createElement('tr');
-        summaryRow.innerHTML = `
-            <td><strong>Total</strong></td>
-            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalRevenue, 0).toFixed(2)} kr</td>
-            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalProvision, 0).toFixed(2)} kr</td>
-            <td>${totalIncome.toFixed(2)} kr</td>
-        `;
-        tbody.appendChild(summaryRow);
-    }
-
-    function getWorkingDays(year, month) {
-        let workingDays = 0;
-        let totalDays = new Date(year, month, 0).getDate();
-
-        for (let day = 1; day <= totalDays; day++) {
-            let currentDate = new Date(year, month - 1, day);
-            let currentDay = currentDate.getDay();
-            let formattedDate = currentDate.toISOString().split('T')[0];
-
-            if (currentDay !== 0 && currentDay !== 6 && !redDays.includes(formattedDate)) {
-                workingDays++;
-            }
-        }
-
-        return workingDays;
-    }
-});
+        const totalMonthlySalary = Object.values(monthlyData).
