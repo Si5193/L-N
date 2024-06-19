@@ -41,11 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
         table.innerHTML = `
             <thead>
                 <tr>
-                    <th>Datum</th>
+                    <th>Månad</th>
                     <th>Omsättning</th>
                     <th>Provision</th>
-                    <th>Dagslön</th>
-                    <th>Total Lön inkl Provision</th>
+                    <th>Total lön inkl Provision/Semester</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -53,42 +52,45 @@ document.addEventListener("DOMContentLoaded", () => {
         const tbody = table.querySelector('tbody');
         historyContainer.appendChild(table);
 
-        let totalRevenue = 0;
-        let totalProvision = 0;
-        let totalDays = 0;
+        let monthlyData = {};
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const date = new Date(data.date).toLocaleDateString();
-            const revenue = data.revenue ? data.revenue.toFixed(2) : '0.00';
-            const provision = (data.revenue - 7816) * 0.17;
+            const date = new Date(data.date);
+            const month = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+            const revenue = data.revenue ? data.revenue : 0;
+            const provision = (revenue - 7816) * 0.17;
             const dailySalary = monthlySalary / 21;
             const totalDayEarnings = provision + dailySalary;
 
-            totalRevenue += parseFloat(revenue);
-            totalProvision += parseFloat(provision);
-            totalDays++;
+            if (!monthlyData[month]) {
+                monthlyData[month] = { totalRevenue: 0, totalProvision: 0, totalEarnings: 0 };
+            }
 
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${date}</td>
-                <td>${revenue} kr</td>
-                <td>${provision.toFixed(2)} kr</td>
-                <td>${dailySalary.toFixed(2)} kr</td>
-                <td>${totalDayEarnings.toFixed(2)} kr</td>
-            `;
-            tbody.appendChild(row);
+            monthlyData[month].totalRevenue += parseFloat(revenue);
+            monthlyData[month].totalProvision += parseFloat(provision);
+            monthlyData[month].totalEarnings += totalDayEarnings;
         });
 
-        const totalMonthlySalary = (monthlySalary / 21) * totalDays;
-        const totalIncome = totalProvision + totalMonthlySalary;
+        for (const [month, data] of Object.entries(monthlyData)) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${month}</td>
+                <td>${data.totalRevenue.toFixed(2)} kr</td>
+                <td>${data.totalProvision.toFixed(2)} kr</td>
+                <td>${data.totalEarnings.toFixed(2)} kr</td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        const totalMonthlySalary = Object.values(monthlyData).reduce((acc, data) => acc + (monthlySalary / 21 * data.totalEarnings), 0);
+        const totalIncome = Object.values(monthlyData).reduce((acc, data) => acc + data.totalEarnings, 0);
 
         const summaryRow = document.createElement('tr');
         summaryRow.innerHTML = `
             <td><strong>Total</strong></td>
-            <td>${totalRevenue.toFixed(2)} kr</td>
-            <td>${totalProvision.toFixed(2)} kr</td>
-            <td>${totalMonthlySalary.toFixed(2)} kr</td>
+            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalRevenue, 0).toFixed(2)} kr</td>
+            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalProvision, 0).toFixed(2)} kr</td>
             <td>${totalIncome.toFixed(2)} kr</td>
         `;
         tbody.appendChild(summaryRow);
