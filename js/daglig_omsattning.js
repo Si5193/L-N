@@ -2,12 +2,12 @@ import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getRedDays } from './red_days.js';
-import { eachDayOfInterval, format, isSunday } from 'https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js';
+import { eachDayOfInterval, format, isSunday, parseISO } from 'https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js';
 
 const omsattningForm = document.getElementById('omsattningForm');
 const resetValuesButton = document.getElementById('resetValues');
 const dailyDataTable = document.getElementById('dailyDataTable').getElementsByTagName('tbody')[0];
-
+const dateInput = document.getElementById('date');
 let currentUser = null;
 let monthlySalary = 0;
 let redDays = [];
@@ -19,6 +19,7 @@ onAuthStateChanged(auth, async (user) => {
         const currentYear = new Date().getFullYear();
         redDays = getRedDays(currentYear);
         fetchRevenues(user.uid);
+        disableRedDays();
     } else {
         window.location.href = 'index.html';
     }
@@ -42,6 +43,7 @@ async function fetchRevenues(uid) {
         const revenue = data.revenue ? data.revenue.toFixed(2) : '0.00';
         const isVacationDay = data.isVacationDay ? 'Ja' : 'Nej';
         const vacationValue = data.isVacationDay ? data.vacationValue.toFixed(2) : '';
+        const isSickDay = data.isSickDay ? 'Ja' : 'Nej';
 
         const row = dailyDataTable.insertRow();
         row.innerHTML = `
@@ -49,6 +51,7 @@ async function fetchRevenues(uid) {
             <td>${revenue} kr</td>
             <td>${isVacationDay}</td>
             <td>${vacationValue} kr</td>
+            <td>${isSickDay}</td>
         `;
     });
 }
@@ -59,6 +62,7 @@ omsattningForm.addEventListener('submit', async (e) => {
     const revenue = parseFloat(document.getElementById('revenue').value) || 0;
     const isVacationDay = document.getElementById('isVacationDay').checked;
     const vacationValue = parseFloat(document.getElementById('vacationValue').value) || 0;
+    const isSickDay = document.getElementById('isSickDay').checked;
 
     const dailySalary = monthlySalary / 21;
     const month = new Date(date).getMonth() + 1;
@@ -73,6 +77,14 @@ omsattningForm.addEventListener('submit', async (e) => {
     if (isVacationDay) {
         dailyProvision = 0;
         totalSalary = vacationValue;
+    } else if (isSickDay) {
+        const sickDays = document.querySelectorAll('input[type="checkbox"][id="isSickDay"]:checked').length;
+        if (sickDays === 1) {
+            totalSalary = 0; // Karensdag
+        } else {
+            totalSalary = dailySalary * 0.8; // 80% av dagslönen
+        }
+        monthlyThreshold -= dailyThreshold * sickDays;
     } else {
         const dailyRevenueThreshold = revenue > dailyThreshold ? revenue - dailyThreshold : 0;
         dailyProvision = dailyRevenueThreshold * 0.17;
@@ -87,6 +99,7 @@ omsattningForm.addEventListener('submit', async (e) => {
             dailyProvision: dailyProvision,
             isVacationDay: isVacationDay,
             vacationValue: vacationValue,
+            isSickDay: isSickDay,
             totalSalary: totalSalary,
             timestamp: serverTimestamp()
         });
@@ -129,4 +142,22 @@ function getWorkingDays(year, month) {
     }
 
     return workingDays;
+}
+
+function disableRedDays() {
+    dateInput.addEventListener('input', () => {
+        const selectedDate = dateInput.value;
+        if (redDays.includes(selectedDate)) {
+            dateInput.setCustomValidity('Detta datum är en röd dag.');
+        } else {
+            dateInput.setCustomValidity('');
+        }
+    });
+
+    dateInput.addEventListener('focus', () => {
+        const datePicker = dateInput.showPicker ? dateInput : null; // Fallback om showPicker inte finns
+        if (datePicker) {
+            datePicker.showPicker();
+        }
+    });
 }
