@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logga In</title>
+    <title>Logga in</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script type="module" src="js/firebaseConfig.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js"></script>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -19,13 +14,17 @@
         Your browser does not support the video tag.
     </video>
     <div class="container">
-        <h1>Logga In</h1>
-        <form id="login-form">
-            <input type="text" id="login-username" placeholder="Användarnamn" required>
-            <input type="password" id="login-password" placeholder="Lösenord" required>
-            <button type="submit" class="btn">Logga In</button>
+        <h1>Logga in</h1>
+        <form id="loginForm">
+            <label for="email">E-post:</label>
+            <input type="email" id="email" required>
+            <label for="password">Lösenord:</label>
+            <input type="password" id="password" required>
+            <button type="submit">Logga in</button>
         </form>
-        <p>Har du inget konto? <a href="register.html">Registrera dig här</a></p>
+        <button onclick="location.href='register.html'" class="btn">Registrera dig</button>
     </div>
+    <script type="module" src="js/firebaseConfig.js"></script>
+    <script type="module" src="js/auth.js"></script>
 </body>
 </html>
