@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/f
 
 const omsattningForm = document.getElementById('omsattningForm');
 const resetValuesButton = document.getElementById('resetValues');
-const dailyDataContainer = document.getElementById('dailyDataContainer');
+const dailyDataTable = document.getElementById('dailyDataTable').getElementsByTagName('tbody')[0];
 
 let currentUser = null;
 let monthlySalary = 0;
@@ -30,19 +30,21 @@ async function fetchMonthlySalary(uid) {
 async function fetchRevenues(uid) {
     const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
     const querySnapshot = await getDocs(q);
-    dailyDataContainer.innerHTML = '';
+    dailyDataTable.innerHTML = '';
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const date = new Date(data.date).toLocaleDateString();
         const revenue = data.revenue ? data.revenue.toFixed(2) : '0.00';
+        const isVacationDay = data.isVacationDay ? 'Ja' : 'Nej';
+        const vacationValue = data.isVacationDay ? data.vacationValue.toFixed(2) : '';
 
-        const dayData = document.createElement('div');
-        dayData.classList.add('day-data');
-        dayData.innerHTML = `
-            <p>Datum: ${date}</p>
-            <p>Omsättning: ${revenue} kr</p>
+        const row = dailyDataTable.insertRow();
+        row.innerHTML = `
+            <td>${date}</td>
+            <td>${revenue} kr</td>
+            <td>${isVacationDay}</td>
+            <td>${vacationValue} kr</td>
         `;
-        dailyDataContainer.appendChild(dayData);
     });
 }
 
@@ -94,7 +96,7 @@ resetValuesButton.addEventListener('click', async () => {
         });
         await batch.commit();
         alert('Värden nollställda!');
-        dailyDataContainer.innerHTML = ''; // Töm visningen av daglig data efter nollställning
+        dailyDataTable.innerHTML = ''; // Töm visningen av daglig data efter nollställning
     } catch (error) {
         console.error('Error resetting values: ', error);
     }
