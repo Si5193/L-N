@@ -2,6 +2,7 @@ import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getRedDays } from './red_days.js';
+import { eachDayOfInterval, format, isSunday } from 'date-fns';
 
 document.addEventListener("DOMContentLoaded", () => {
     const historyContainer = document.getElementById('historyContainer');
@@ -95,9 +96,4 @@ document.addEventListener("DOMContentLoaded", () => {
         summaryRow.innerHTML = `
             <td><strong>Total</strong></td>
             <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalRevenue, 0).toFixed(2)} kr</td>
-            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalProvision, 0).toFixed(2)} kr</td>
-            <td>${totalIncome.toFixed(2)} kr</td>
-        `;
-        tbody.appendChild(summaryRow);
-    }
-});
+            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data
