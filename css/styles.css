@@ -138,4 +138,15 @@ body, html {
     #expected-salary {
         font-size: 20px;
     }
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: red;
+    border-radius: 50%;
+}
+
+input[type="date"]:invalid {
+    border-color: red;
+}
+
+.hidden {
+    display: none;
 }
