@@ -1,25 +1,30 @@
-import { auth } from './firebaseConfig.js';
+import { auth, db } from './firebaseConfig.js';
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const registerForm = document.getElementById('register-form');
+const registerForm = document.getElementById('registerForm');
 
-if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        let username = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
+registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        // Skapa en giltig e-postadress från användarnamnet
-        const email = `${username}@example.com`;
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            alert('Registrering lyckades! Du kommer nu att omdirigeras till inloggningssidan.');
-            window.location.href = 'index.html';
-        } catch (error) {
-            console.error('Fel vid registrering:', error);
-            alert(`Fel vid registrering: ${error.message}`);
-        }
-    });
-}
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "users", user.uid), {
+            username: username,
+            email: email,
+            monthlySalary: 0  // Initial value
+        });
+
+        alert('Registrering lyckades!');
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error('Fel vid registrering:', error);
+        alert('Fel vid registrering: ' + error.message);
+    }
+});
