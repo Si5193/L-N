@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrera dig</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/register.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -21,7 +18,7 @@
     <div class="container">
         <h1>Registrera dig</h1>
         <form id="register-form">
-            <input type="text" id="register-username" placeholder="Användarnamn" required>
+            <input type="email" id="email" placeholder="E-post" required>
             <input type="password" id="register-password" placeholder="Lösenord" required>
             <button type="submit" class="btn">Registrera dig</button>
         </form>
