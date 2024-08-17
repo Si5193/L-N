@@ -8,7 +8,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lägg till anpassad CSS direkt i HTML-filen -->
+    <style>
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 1400px; /* Öka maxbredden för att säkerställa att den är bred nog */
+            width: 100%;
+            text-align: center;
+            margin: 20px;
+            animation: fadeIn 1s forwards;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        /* Gör att containern sträcker sig över hela skärmen på stora skärmar */
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1600px;
+            }
+        }
+    </style>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
@@ -28,12 +52,15 @@
             <input type="number" id="monthly-salary" required>
             <button id="save-salary" class="btn">Spara Månadslön</button>
         </div>
-        <div class="chart-container">
-            <canvas id="revenueChart"></canvas>
-        </div>
         <div class="summary-container">
             <h2>Förväntad lön:</h2>
             <p id="expected-salary"></p>
+        </div>
+        <div class="chart-container">
+            <canvas id="monthlyAverageChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="overallAverageChart"></canvas>
         </div>
         <button id="resetSalary" class="btn">Nollställ Förväntad Lön</button>
         <div id="loadingIndicator">Laddar...</div>
