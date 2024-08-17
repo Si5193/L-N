@@ -7,16 +7,15 @@ const registerForm = document.getElementById('register-form');
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const password = document.getElementById('register-password').value;
 
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
+        // Spara endast e-post i Firestore
         await setDoc(doc(db, "users", user.uid), {
-            username: username,
             email: email,
             monthlySalary: 0  // Initial value
         });
