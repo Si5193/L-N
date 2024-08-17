@@ -9,26 +9,33 @@
     <link rel="stylesheet" href="css/historik.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js"></script>
 </head>
 <body>
+    <!-- Bakgrundsvideo -->
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
         <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+        Din webbläsare stödjer inte videoelementet.
     </video>
-    <div class="user-profile" id="user-profile">
+
+    <!-- Användarprofil och dropdown-meny -->
+    <div class="user-profile" id="user-profile" aria-label="User Profile" tabindex="0">
         <i class="fas fa-user-circle fa-2x"></i>
-        <div class="dropdown-content" id="dropdown-content">
-            <a href="#" id="logout">Logga ut</a>
+        <div class="dropdown-content" id="dropdown-content" aria-hidden="true">
+            <a href="#" id="logout" role="button">Logga ut</a>
         </div>
     </div>
+
+    <!-- Innehållscontainer -->
     <div class="container">
         <h1>Historik</h1>
         <div id="historyContainer"></div>
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
+
+    <!-- Scriptlänkar -->
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/historik.js"></script>
     <script type="module" src="js/userProfile.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.23.0/esm/index.js"></script>
 </body>
 </html>
