@@ -4,56 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daglig Omsättning</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/daglig_omsattning.css">
+    <link rel="stylesheet" href="css/styles.css"> <!-- Länk till styles.css -->
+    <link rel="stylesheet" href="css/daglig_omsattning.css"> <!-- Länk till daglig_omsattning.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.29.2/date-fns.min.js"></script>
 </head>
 <body>
     <video id="bg-video" autoplay muted loop playsinline class="bg-video">
         <source src="https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+
     <div class="user-profile" id="user-profile">
         <i class="fas fa-user-circle fa-2x"></i>
         <div class="dropdown-content" id="dropdown-content">
             <a href="#" id="logout">Logga ut</a>
         </div>
     </div>
+
     <div class="container">
         <h1>Daglig Omsättning</h1>
         <form id="omsattningForm">
             <label for="date">Datum:</label>
             <input type="date" id="date" required>
             <label for="revenue">Omsättning:</label>
-            <input type="number" id="revenue" required>
+            <input type="number" id="revenue">
             <input type="checkbox" id="isVacationDay">
             <label for="isVacationDay">Semesterdag</label>
-            <div id="vacationValueContainer" class="hidden">
-                <label for="vacationValue">Värde för semesterdag:</label>
-                <input type="number" id="vacationValue">
-            </div>
             <input type="checkbox" id="isSickDay">
             <label for="isSickDay">Sjukdag/VAB</label>
             <button type="submit">Spara omsättning</button>
         </form>
-        <button id="resetValues">Nollställ värden</button>
-        <table id="dailyDataTable">
-            <thead>
-                <tr>
-                    <th>Datum</th>
-                    <th>Omsättning</th>
-                    <th>Semesterdag</th>
-                    <th>Värde för semesterdag</th>
-                    <th>Sjukdag/VAB</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        
+        <h2>Visa och nollställ data per månad</h2>
+        <form id="monthForm">
+            <label for="month">Välj månad:</label>
+            <input type="month" id="month" required>
+            <button type="button" id="showRevenue">Visa Omsättning</button>
+        </form>
+        <form id="resetForm">
+            <label for="resetMonth">Välj månad att nollställa:</label>
+            <input type="month" id="resetMonth" required>
+            <button type="button" id="resetData">Nollställ data</button>
+        </form>
+
         <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
     </div>
+
+    <!-- Popup-fönster för att visa omsättning -->
+    <div id="popup" class="popup hidden">
+        <div class="popup-content">
+            <span id="closePopup" class="close">&times;</span>
+            <h2>Omsättning för vald månad</h2>
+            
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <i class="fas fa-chart-line"></i>
+                    <p id="totalRevenueDisplay"></p>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-calendar-day"></i>
+                    <p id="workDaysDisplay"></p>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-money-check-alt"></i>
+                    <p id="provisionLimitDisplay"></p>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-minus-circle"></i>
+                    <p id="averageSalaryDisplay"></p>
+                </div>
+                <div class="summary-card single">
+                    <i class="fas fa-wallet"></i>
+                    <p id="currentEarningsDisplay"></p>
+                </div>
+            </div>
+
+            <table id="popupTable">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Omsättning</th>
+                        <th>Intjänad lön</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar">
+                    <span id="progressText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
