@@ -1,32 +1,42 @@
 import { auth, db } from './firebaseConfig.js';
-import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc, deleteDoc, serverTimestamp, query, where, getDocs, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getRedDays } from './red_days.js';
 
-// Inkludera date-fns funktioner direkt från global scope
-const { eachDayOfInterval, format, isSunday, parseISO, addDays, subDays, isFriday } = window.dateFns;
+// Svenska helgdagar
+const holidays = {
+    "01-01": "Nyårsdagen",
+    "06-06": "Nationaldagen",
+    "12-24": "Julafton",
+    "12-25": "Juldagen",
+    "12-26": "Annandag jul",
+    "12-31": "Nyårsafton"
+    // Lägg till fler helgdagar här
+};
 
+// Variabler för att referera till element
 const omsattningForm = document.getElementById('omsattningForm');
-const resetValuesButton = document.getElementById('resetValues');
-const dailyDataTable = document.getElementById('dailyDataTable').getElementsByTagName('tbody')[0];
-const dateInput = document.getElementById('date');
+const showRevenueButton = document.getElementById('showRevenue');
+const monthInput = document.getElementById('month');
+const resetDataButton = document.getElementById('resetData');
+const resetMonthInput = document.getElementById('resetMonth');
+const popupTable = document.getElementById('popupTable').getElementsByTagName('tbody')[0];
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progressText');
+const closePopupButton = document.getElementById('closePopup'); // Stäng-knappen för popup
 let currentUser = null;
 let monthlySalary = 0;
-let redDays = [];
 
+// Hämta användarens information
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         await fetchMonthlySalary(user.uid);
-        const currentYear = new Date().getFullYear();
-        redDays = getRedDays(currentYear);
-        fetchRevenues(user.uid);
-        disableRedDays();
     } else {
         window.location.href = 'index.html';
     }
 });
 
+// Hämta månadslönen för den inloggade användaren
 async function fetchMonthlySalary(uid) {
     const userDocRef = doc(db, "users", uid);
     const userDoc = await getDoc(userDocRef);
@@ -35,62 +45,35 @@ async function fetchMonthlySalary(uid) {
     }
 }
 
-async function fetchRevenues(uid) {
-    const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
-    const querySnapshot = await getDocs(q);
-    dailyDataTable.innerHTML = '';
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const date = new Date(data.date).toLocaleDateString();
-        const revenue = data.revenue ? data.revenue.toFixed(2) : '0.00';
-        const isVacationDay = data.isVacationDay ? 'Ja' : 'Nej';
-        const vacationValue = data.isVacationDay ? data.vacationValue.toFixed(2) : '';
-        const isSickDay = data.isSickDay ? 'Ja' : 'Nej';
-
-        const row = dailyDataTable.insertRow();
-        row.innerHTML = `
-            <td>${date}</td>
-            <td>${revenue} kr</td>
-            <td>${isVacationDay}</td>
-            <td>${vacationValue} kr</td>
-            <td>${isSickDay}</td>
-        `;
-    });
-}
-
+// Hantera formulärinlämning för att spara omsättning
 omsattningForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const date = document.getElementById('date').value;
-    const revenue = parseFloat(document.getElementById('revenue').value) || 0;
-    const isVacationDay = document.getElementById('isVacationDay').checked;
-    const vacationValue = parseFloat(document.getElementById('vacationValue').value) || 0;
-    const isSickDay = document.getElementById('isSickDay').checked;
+    console.log("Formulär inlämnat");
 
-    const dailySalary = monthlySalary / 21;
-    const month = new Date(date).getMonth() + 1;
-    const year = new Date(date).getFullYear();
-    const workingDays = getWorkingDays(year, month);
-    const dailyThreshold = 7816;
-    const monthlyThreshold = dailyThreshold * workingDays;
+    const date = document.getElementById('date').value;
+    const revenueInput = document.getElementById('revenue');
+    const revenue = parseFloat(revenueInput.value) || 0;
+    const isVacationDay = document.getElementById('isVacationDay').checked;
+    const isSickDay = document.getElementById('isSickDay').checked;
 
     let dailyProvision = 0;
     let totalSalary = 0;
+    let displayRevenue = '';
+    let displaySalary = '';
 
     if (isVacationDay) {
-        dailyProvision = 0;
-        totalSalary = vacationValue;
+        displayRevenue = 'Semester';
+        displaySalary = 'Semester';
+        revenueInput.value = '';
     } else if (isSickDay) {
-        const sickDays = document.querySelectorAll('input[type="checkbox"][id="isSickDay"]:checked').length;
-        if (sickDays === 1) {
-            totalSalary = 0; // Karensdag
-        } else {
-            totalSalary = dailySalary * 0.8; // 80% av dagslönen
-        }
-        monthlyThreshold -= dailyThreshold * sickDays;
+        displayRevenue = 'Sjuk/VAB';
+        displaySalary = 'Sjuk/VAB';
+        revenueInput.value = '';
     } else {
-        const dailyRevenueThreshold = revenue > dailyThreshold ? revenue - dailyThreshold : 0;
-        dailyProvision = dailyRevenueThreshold * 0.17;
-        totalSalary = dailyProvision + dailySalary;
+        dailyProvision = Math.max(0, revenue - 7816) * 0.17;
+        totalSalary = dailyProvision + (monthlySalary / 21);
+        displayRevenue = `${Math.round(revenue)} kr`;
+        displaySalary = `${Math.round(totalSalary)} kr`;
     }
 
     try {
@@ -98,68 +81,161 @@ omsattningForm.addEventListener('submit', async (e) => {
             uid: currentUser.uid,
             date: date,
             revenue: revenue,
-            dailyProvision: dailyProvision,
+            displayRevenue: displayRevenue,
+            displaySalary: displaySalary,
             isVacationDay: isVacationDay,
-            vacationValue: vacationValue,
             isSickDay: isSickDay,
+            dailyProvision: dailyProvision,
             totalSalary: totalSalary,
             timestamp: serverTimestamp()
         });
         alert('Omsättning sparad!');
         omsattningForm.reset();
-        fetchRevenues(currentUser.uid); // Uppdatera visningen av daglig data efter sparande
     } catch (error) {
         console.error('Error adding document: ', error);
     }
 });
 
-resetValuesButton.addEventListener('click', async () => {
+// Hantera visning av omsättning för vald månad
+showRevenueButton.addEventListener('click', async () => {
+    console.log("Visa Omsättning-knappen klickades");
+
+    const selectedMonth = monthInput.value;
+    if (!selectedMonth) {
+        alert('Vänligen välj en månad.');
+        return;
+    }
+
+    const [year, month] = selectedMonth.split('-').map(Number);
+    console.log(`Visar data för månad: ${year}-${month}`);
+
+    // Hämta data från Firebase
+    const q = query(
+        collection(db, "revenues"),
+        where("uid", "==", currentUser.uid),
+        where("date", ">=", new Date(year, month - 1, 1).toISOString().split('T')[0]),
+        where("date", "<=", new Date(year, month, 0).toISOString().split('T')[0]),
+        orderBy("date")
+    );
+
     try {
-        const q = query(collection(db, 'revenues'), where('uid', '==', currentUser.uid));
         const querySnapshot = await getDocs(q);
-        const batch = writeBatch(db);
+        if (querySnapshot.empty) {
+            alert('Ingen data tillgänglig för den valda månaden.');
+            return;
+        }
+
+        // Variabler för att hålla reda på totalsummor
+        let totalRevenue = 0;
+        let workDays = 0;
+        let totalEarnings = 0;
+
+        popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
+
         querySnapshot.forEach((doc) => {
-            batch.delete(doc.ref);
+            const data = doc.data();
+            console.log("Datum:", data.date, "Omsättning:", data.revenue);
+
+            if (!data.isVacationDay && !data.isSickDay) {
+                workDays++;
+                totalRevenue += data.revenue;
+            }
+
+            const row = popupTable.insertRow();
+            row.innerHTML = `
+                <td>${new Date(data.date).toLocaleDateString()}</td>
+                <td>${data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A'}</td>
+                <td>${data.isVacationDay || data.isSickDay ? 'Sjuk/semester' : `${Math.round(data.totalSalary)} kr`}</td>
+            `;
         });
-        await batch.commit();
-        alert('Värden nollställda!');
-        dailyDataTable.innerHTML = ''; // Töm visningen av daglig data efter nollställning
+
+        // Nu summerar vi intjänad lön direkt från tabellen
+        for (let i = 0; i < popupTable.rows.length; i++) {
+            const salaryCell = popupTable.rows[i].cells[2]; // Kolumnen för intjänad lön
+            const salaryValue = parseFloat(salaryCell.innerText.replace(' kr', '').replace('N/A', '0'));
+            if (!isNaN(salaryValue)) {
+                totalEarnings += salaryValue;
+            }
+        }
+
+        const provisionLimit = workDays * 7816;
+        const progressPercentage = (workDays / 21) * 100;
+        const averageSalary = workDays > 0 ? totalEarnings / workDays : 0;
+
+        console.log("Total intjänad lön från tabellen:", Math.round(totalEarnings));
+        console.log("Snittlön per dag:", Math.round(averageSalary));
+
+        // Uppdatera UI med alla resultat
+        document.getElementById('totalRevenueDisplay').innerText = `Total Omsättning: ${Math.round(totalRevenue)} kr`;
+        document.getElementById('workDaysDisplay').innerText = `Arbetsdagar: ${workDays}`;
+        document.getElementById('provisionLimitDisplay').innerText = `Provisionsgräns: ${provisionLimit} kr`;
+        document.getElementById('currentEarningsDisplay').innerText = `Intjänad lön: ${Math.round(totalEarnings)} kr`;
+        document.getElementById('averageSalaryDisplay').innerText = `Snittlön: ${Math.round(averageSalary)} kr/dag`;
+
+        progressBar.style.width = `${progressPercentage}%`;
+        progressText.innerText = `Du har ${21 - workDays} dagar kvar att arbeta denna månad.`;
+
+        // Visar popupen
+        document.getElementById('popup').classList.remove('hidden');
+        document.getElementById('popup').classList.add('show');
+
     } catch (error) {
-        console.error('Error resetting values: ', error);
+        console.error('Fel vid hämtning av data:', error);
     }
 });
 
-function getWorkingDays(year, month) {
-    let workingDays = 0;
-    let totalDays = new Date(year, month, 0).getDate();
+// Funktion för att stänga popup-fönstret
+closePopupButton.addEventListener('click', () => {
+    console.log("Stänger popup-fönstret");
+    document.getElementById('popup').classList.remove('show');
+    document.getElementById('popup').classList.add('hidden');
+});
 
-    for (let day = 1; day <= totalDays; day++) {
-        let currentDate = new Date(year, month - 1, day);
-        let currentDay = currentDate.getDay();
-        let formattedDate = currentDate.toISOString().split('T')[0];
+// Funktion för att nollställa data för vald månad
+resetDataButton.addEventListener('click', async () => {
+    console.log("Nollställningsknappen klickades");
 
-        if (currentDay !== 0 && currentDay !== 6 && !redDays.includes(formattedDate)) {
-            workingDays++;
-        }
+    const selectedMonth = resetMonthInput.value;
+    if (!selectedMonth) {
+        alert('Vänligen välj en månad att nollställa.');
+        return;
     }
 
-    return workingDays;
-}
+    const [year, month] = selectedMonth.split('-').map(Number);
 
-function disableRedDays() {
-    dateInput.addEventListener('input', () => {
-        const selectedDate = dateInput.value;
-        if (redDays.includes(selectedDate)) {
-            dateInput.setCustomValidity('Detta datum är en röd dag.');
-        } else {
-            dateInput.setCustomValidity('');
-        }
-    });
+    if (confirm(`Är du säker på att du vill nollställa all data för ${selectedMonth}?`)) {
+        const startOfMonth = new Date(year, month - 1, 1).toISOString().split('T')[0];
+        const endOfMonth = new Date(year, month, 0).toISOString().split('T')[0];
 
-    dateInput.addEventListener('focus', () => {
-        const datePicker = dateInput.showPicker ? dateInput : null; // Fallback om showPicker inte finns
-        if (datePicker) {
-            datePicker.showPicker();
+        const q = query(
+            collection(db, "revenues"),
+            where("uid", "==", currentUser.uid),
+            where("date", ">=", startOfMonth),
+            where("date", "<=", endOfMonth)
+        );
+
+        try {
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) {
+                alert('Ingen data tillgänglig för den valda månaden.');
+                return;
+            }
+
+            // Skapa en batch-operation
+            const batch = writeBatch(db);
+
+            querySnapshot.forEach((doc) => {
+                const docRef = doc.ref;
+                batch.delete(docRef);
+            });
+
+            await batch.commit();
+            alert(`All data för ${selectedMonth} har nollställts.`);
+            console.log(`Data nollställd för månad: ${selectedMonth}`);
+
+        } catch (error) {
+            console.error('Fel vid nollställning av data: ', error);
+            alert('Det gick inte att nollställa datan. Försök igen senare.');
         }
-    });
-}
+    }
+});
