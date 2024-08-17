@@ -1,12 +1,10 @@
 import { auth, db } from './firebaseConfig.js';
 import { doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getRedDays } from './red_days.js';
-import { eachDayOfInterval, format, isSunday } from 'https://cdn.jsdelivr.net/npm/date-fns@2.23.0/dist/date-fns.min.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     const historyContainer = document.getElementById('historyContainer');
-    
+
     if (!historyContainer) {
         console.error("historyContainer element is not found.");
         return;
@@ -15,107 +13,102 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentUser = null;
     let monthlySalary = 0;
 
+    // Hantera autentiseringsstatus
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
+            console.log("User authenticated:", user.uid);
             await fetchMonthlySalary(user.uid);
-            const currentYear = new Date().getFullYear();
-            redDays = getRedDays(currentYear);
-            fetchRevenues(user.uid);
+            fetchMonthlyRevenues(user.uid);
         } else {
             window.location.href = 'index.html';
         }
     });
 
+    // Hämta användarens månadslön
     async function fetchMonthlySalary(uid) {
-        const userDocRef = doc(db, "users", uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-            monthlySalary = userDoc.data().monthlySalary;
+        try {
+            const userDocRef = doc(db, "users", uid);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                monthlySalary = userDoc.data().monthlySalary;
+                console.log("Monthly Salary:", monthlySalary);
+            } else {
+                console.error("User document not found.");
+            }
+        } catch (error) {
+            console.error("Error fetching monthly salary:", error);
         }
     }
 
-    async function fetchRevenues(uid) {
-        const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
-        const querySnapshot = await getDocs(q);
+    // Hämta och bearbeta omsättningsdata per månad
+    async function fetchMonthlyRevenues(uid) {
+        try {
+            const q = query(collection(db, "revenues"), where("uid", "==", uid), orderBy("date"));
+            const querySnapshot = await getDocs(q);
 
-        historyContainer.innerHTML = '';
-        const table = document.createElement('table');
-        table.classList.add('history-table');
-        table.innerHTML = `
-            <thead>
-                <tr>
-                    <th>Månad</th>
-                    <th>Omsättning</th>
-                    <th>Provision</th>
-                    <th>Total lön inkl Provision/Semester</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        `;
-        const tbody = table.querySelector('tbody');
-        historyContainer.appendChild(table);
+            console.log("Fetching monthly revenues...");
 
-        let monthlyData = {};
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const date = new Date(data.date);
-            const month = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-            const revenue = data.revenue ? data.revenue : 0;
-            const workingDays = getWorkingDays(date.getFullYear(), date.getMonth() + 1);
-            const monthlyThreshold = 7816 * workingDays;
-            const provision = (revenue - monthlyThreshold) > 0 ? (revenue - monthlyThreshold) * 0.17 : 0;
-            const dailySalary = monthlySalary / 21;
-            const totalDayEarnings = provision + dailySalary;
-
-            if (!monthlyData[month]) {
-                monthlyData[month] = { totalRevenue: 0, totalProvision: 0, totalEarnings: 0 };
-            }
-
-            monthlyData[month].totalRevenue += parseFloat(revenue);
-            monthlyData[month].totalProvision += parseFloat(provision);
-            monthlyData[month].totalEarnings += totalDayEarnings;
-        });
-
-        for (const [month, data] of Object.entries(monthlyData)) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${month}</td>
-                <td>${data.totalRevenue.toFixed(2)} kr</td>
-                <td>${data.totalProvision.toFixed(2)} kr</td>
-                <td>${data.totalEarnings.toFixed(2)} kr</td>
+            historyContainer.innerHTML = '';
+            const table = document.createElement('table');
+            table.classList.add('history-table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Månad</th>
+                        <th>Omsättning</th>
+                        <th>Provision</th>
+                        <th>Total lön inkl Provision</th>
+                        <th>Antal sjuk-/semesterdagar</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
             `;
-            tbody.appendChild(row);
-        }
+            const tbody = table.querySelector('tbody');
+            historyContainer.appendChild(table);
 
-        const totalMonthlySalary = Object.values(monthlyData).reduce((acc, data) => acc + (monthlySalary / 21 * data.totalEarnings), 0);
-        const totalIncome = Object.values(monthlyData).reduce((acc, data) => acc + data.totalEarnings, 0);
+            let monthlyData = {};
 
-        const summaryRow = document.createElement('tr');
-        summaryRow.innerHTML = `
-            <td><strong>Total</strong></td>
-            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalRevenue, 0).toFixed(2)} kr</td>
-            <td>${Object.values(monthlyData).reduce((acc, data) => acc + data.totalProvision, 0).toFixed(2)} kr</td>
-            <td>${totalIncome.toFixed(2)} kr</td>
-        `;
-        tbody.appendChild(summaryRow);
-    }
+            // Bearbeta varje dokument i resultatet
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                console.log("Document data:", data);
+                const date = new Date(data.date);
+                const month = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                const revenue = data.revenue ? data.revenue : 0;
+                const isSickOrVacation = data.isVacationDay || data.isSickDay;
+                const provision = Math.max(0, (revenue - 7816) * 0.17);
+                const dailySalary = monthlySalary / 21;
 
-    function getWorkingDays(year, month) {
-        let workingDays = 0;
-        let totalDays = new Date(year, month, 0).getDate();
+                if (!monthlyData[month]) {
+                    monthlyData[month] = { totalRevenue: 0, totalProvision: 0, totalEarnings: 0, sickVacationDays: 0, workDays: 0 };
+                }
 
-        for (let day = 1; day <= totalDays; day++) {
-            let currentDate = new Date(year, month - 1, day);
-            let currentDay = currentDate.getDay();
-            let formattedDate = currentDate.toISOString().split('T')[0];
+                monthlyData[month].totalRevenue += revenue;
+                monthlyData[month].totalProvision += provision;
+                if (!isSickOrVacation) {
+                    monthlyData[month].totalEarnings += dailySalary + provision;
+                    monthlyData[month].workDays++;
+                } else {
+                    monthlyData[month].sickVacationDays++;
+                }
+            });
 
-            if (currentDay !== 0 && currentDay !== 6 && !redDays.includes(formattedDate)) {
-                workingDays++;
+            // Visa data i tabellen
+            for (const [month, data] of Object.entries(monthlyData)) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${month}</td>
+                    <td>${data.totalRevenue.toFixed(2)} kr</td>
+                    <td>${data.totalProvision.toFixed(2)} kr</td>
+                    <td>${data.totalEarnings.toFixed(2)} kr</td>
+                    <td>${data.sickVacationDays} dagar</td>
+                `;
+                tbody.appendChild(row);
             }
-        }
 
-        return workingDays;
+        } catch (error) {
+            console.error("Error fetching revenues:", error);
+        }
     }
 });
