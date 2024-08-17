@@ -1,15 +1,59 @@
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f7f7f7;
+/* Grundläggande stilar */
+body, html {
+    height: 100%;
     margin: 0;
-    padding: 0;
+    font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background: url('https://videos.pexels.com/video-files/2450251/2450251-hd_1280_720_30fps.mp4') no-repeat center center fixed;
-    background-size: cover;
+    background: none;
+    overflow: hidden;
+}
+
+.bg-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+}
+
+.user-profile {
+    position: absolute;
+    top: 10px;
+    right: 10px;
     color: #00796b;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.user-profile:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
 }
 
 .container {
@@ -17,153 +61,139 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 600px;
-    width: 100%;
+    max-width: 800px;
+    width: 90%;
     text-align: center;
-    margin-bottom: 20px;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 1s forwards;
-    transition: height 0.3s ease;
+    margin: 20px;
+    animation: fadeIn 1s forwards;
 }
 
-h1 {
-    color: #00796b;
-    font-size: 24px;
-    margin: 10px 0;
-}
-
-label {
-    display: block;
-    margin: 10px 0 5px;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-input, select {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #b2dfdb;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-input:focus, select:focus {
-    border-color: #004d40;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
-
-button {
-    background-color: #00796b;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    background-color: #004d40;
-    transform: translateY(-2px);
-}
-
-.button-group {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-.result, .info {
-    margin-top: 10px;
-    font-size: 1em;
-    color: #004d40;
-    opacity: 0;
-    animation: fadeIn 0.5s forwards;
-}
-
-.motivation {
-    margin-top: 10px;
-    font-size: 0.9em;
-    color: #00796b;
-    font-style: italic;
-}
-
-.section-divider {
-    border-top: 1px solid #b2dfdb;
-    margin: 20px 0;
-}
-
-.error {
-    color: red;
-    font-weight: bold;
-}
-
-.highlight-green {
-    color: green;
-}
-
-.highlight-red {
-    color: red;
-}
-
-.hidden {
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    width: 90%;
+    max-width: 1200px;
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     display: none;
 }
 
-table {
+.popup.show {
+    display: block;
+}
+
+.summary-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    width: calc(45% - 20px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.summary-card.single {
+    width: calc(100% - 20px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.summary-card i {
+    font-size: 20px;
+    color: #4caf50;
+    margin-bottom: 8px;
+}
+
+.summary-card p {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+}
+
+#popupTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-table, th, td {
-    border: 1px solid #b2dfdb;
-}
-
-th, td {
-    padding: 10px;
+#popupTable th, #popupTable td {
+    padding: 12px;
     text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
-th {
-    background-color: #e0f2f1;
+#popupTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
 }
 
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+#popupTable td {
+    color: #555;
 }
 
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-    }
+.progress-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    margin-top: 20px;
+    height: 20px;
+    overflow: hidden;
+    position: relative;
 }
 
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-        width: 100%;
-    }
+.progress-bar {
+    height: 100%;
+    background-color: #4caf50;
+    width: 0%;
+    transition: width 0.4s ease;
+    position: relative;
+}
 
-    h1 {
-        font-size: 20px;
-    }
+.progress-bar span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 1;
+    pointer-events: none;
+    text-align: center;
+}
 
-    button {
-        padding: 8px 16px;
-        font-size: 12px;
-    }
+.red-text {
+    color: red;
+    font-weight: bold;
+}
 
-    .button-group {
-        flex-direction: column;
-        gap: 10px;
+@media (max-width: 768px) {
+    .summary-card {
+        width: calc(100% - 20px);
+        margin: 10px auto;
+    }
+    .summary-card.single {
+        width: calc(100% - 20px);
     }
 }
