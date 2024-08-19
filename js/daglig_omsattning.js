@@ -132,8 +132,8 @@ showRevenueButton.addEventListener('click', async () => {
 
         popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
+        querySnapshot.forEach((docSnapshot) => {
+            const data = docSnapshot.data();
             console.log("Datum:", data.date, "Omsättning:", data.revenue);
 
             if (!data.isVacationDay && !data.isSickDay) {
@@ -152,7 +152,7 @@ showRevenueButton.addEventListener('click', async () => {
                 <td>${new Date(data.date).toLocaleDateString()}</td>
                 <td>${data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A'} ${infoIcon}</td>
                 <td>${data.isVacationDay || data.isSickDay ? 'Sjuk/semester' : `${Math.round(data.totalSalary)} kr`}</td>
-                <td><button class="delete-btn" data-id="${doc.id}">Ta bort</button></td>
+                <td><button class="delete-btn" data-id="${docSnapshot.id}">Ta bort</button></td>
             `;
 
             // Lägg till klick-hanterare för att ta bort data
@@ -160,7 +160,8 @@ showRevenueButton.addEventListener('click', async () => {
                 const docId = event.target.getAttribute('data-id');
                 if (confirm('Är du säker på att du vill ta bort denna post?')) {
                     try {
-                        await deleteDoc(doc(db, "revenues", docId));
+                        const docRef = doc(db, "revenues", docId);
+                        await deleteDoc(docRef);
                         alert('Dagen har tagits bort.');
                         row.remove(); // Ta bort raden från tabellen
                     } catch (error) {
@@ -267,8 +268,8 @@ resetDataButton.addEventListener('click', async () => {
             // Skapa en batch-operation
             const batch = writeBatch(db);
 
-            querySnapshot.forEach((doc) => {
-                const docRef = doc.ref;
+            querySnapshot.forEach((docSnapshot) => {
+                const docRef = doc(db, "revenues", docSnapshot.id);
                 batch.delete(docRef);
             });
 
