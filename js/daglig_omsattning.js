@@ -56,10 +56,18 @@ omsattningForm.addEventListener('submit', async (e) => {
     const isVacationDay = document.getElementById('isVacationDay').checked;
     const isSickDay = document.getElementById('isSickDay').checked;
 
+    const unionHours = parseFloat(document.getElementById('unionHours')?.value) || 0;
+    const unionWage = parseFloat(document.getElementById('unionWage')?.value) || 0;
+    const isFullDayUnion = document.getElementById('isFullDayUnion')?.checked || false;
+    const distanceBonus = parseFloat(document.getElementById('distanceBonus')?.value) || 0;
+
     let dailyProvision = 0;
     let totalSalary = 0;
     let displayRevenue = '';
     let displaySalary = '';
+
+    let provisionReduction = 0;
+    let unionIncome = 0;
 
     if (isVacationDay) {
         displayRevenue = 'Semester';
@@ -70,8 +78,20 @@ omsattningForm.addEventListener('submit', async (e) => {
         displaySalary = 'Sjuk/VAB';
         revenueInput.value = '';
     } else {
-        dailyProvision = Math.max(0, revenue - 7816) * 0.17;
-        totalSalary = dailyProvision + (monthlySalary / 21);
+        // Beräkna provisionsgränsreduktion för facklig tid
+        if (isFullDayUnion) {
+            provisionReduction = 7816 * 8;
+            unionIncome = unionWage * 8;
+        } else if (unionHours > 0) {
+            provisionReduction = 977 * unionHours;
+            unionIncome = unionWage * unionHours;
+        }
+
+        // Beräkna provision och lön
+        const adjustedProvisionLimit = 7816 - provisionReduction;
+        dailyProvision = Math.max(0, revenue - adjustedProvisionLimit) * 0.17;
+        totalSalary = dailyProvision + (monthlySalary / 21) + unionIncome + distanceBonus;
+
         displayRevenue = `${Math.round(revenue)} kr`;
         displaySalary = `${Math.round(totalSalary)} kr`;
     }
@@ -87,6 +107,12 @@ omsattningForm.addEventListener('submit', async (e) => {
             isSickDay: isSickDay,
             dailyProvision: dailyProvision,
             totalSalary: totalSalary,
+            unionHours: unionHours,
+            unionWage: unionWage,
+            isFullDayUnion: isFullDayUnion,
+            distanceBonus: distanceBonus,
+            provisionReduction: provisionReduction,
+            unionIncome: unionIncome,
             timestamp: serverTimestamp()
         });
         alert('Omsättning sparad!');
@@ -141,10 +167,16 @@ showRevenueButton.addEventListener('click', async () => {
                 totalRevenue += data.revenue;
             }
 
+            let infoIcon = '';
+            if (data.unionHours > 0 || data.distanceBonus > 0) {
+                const tooltipText = `Facklig tid: ${data.unionHours} timmar, Lön: ${data.unionWage} kr/timme, Distanstillägg: ${data.distanceBonus} kr`;
+                infoIcon = `<i class="fas fa-info-circle" title="${tooltipText}"></i>`;
+            }
+
             const row = popupTable.insertRow();
             row.innerHTML = `
                 <td>${new Date(data.date).toLocaleDateString()}</td>
-                <td>${data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A'}</td>
+                <td>${data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A'} ${infoIcon}</td>
                 <td>${data.isVacationDay || data.isSickDay ? 'Sjuk/semester' : `${Math.round(data.totalSalary)} kr`}</td>
             `;
         });
