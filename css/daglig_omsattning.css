@@ -226,3 +226,17 @@ body, html {
     visibility: visible;
     opacity: 1;
 }
+
+/* Mobilvänlig tooltip */
+.mobile-tooltip {
+    position: absolute;
+    background-color: black;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
