@@ -62,16 +62,16 @@ body, html {
 
 .container {
     background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    padding: 30px;
-    max-width: 1200px; /* Bredden på containern */
-    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 1200px; /* Ökar maxbredden för att göra containern bredare */
+    width: 90%; /* För att behålla responsiviteten */
     text-align: center;
-    margin: 20px;
+    margin: 20px auto; /* Centrerar containern horisontellt */
     animation: fadeIn 1s forwards;
-    overflow-y: auto; /* Gör det möjligt att scrolla om innehållet överstiger höjden */
-    max-height: 90vh; /* Maximal höjd på containern */
+    max-height: 70vh; /* Begränsar höjden så att den inte går för långt ner */
+    overflow-y: auto; /* Lägg till scrollbar om innehållet överstiger maxhöjden */
 }
 
 h1 {
@@ -177,7 +177,7 @@ canvas {
 @media (max-width: 768px) {
     .container {
         padding: 20px;
-        width: 95%;
+        width: 100%; /* Se till att containern fyller hela bredden */
         max-width: 100%; /* Se till att containern är full bredd på mindre skärmar */
     }
     h1 {
@@ -203,4 +203,42 @@ canvas {
     .summary-container h2 {
         font-size: 1.1rem;
     }
+}
+
+/* Styling för navbaren */
+.navbar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #00796b;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.navbar .nav-item {
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    flex-grow: 1;
+}
+
+.navbar .nav-item i {
+    font-size: 20px;
+    display: block;
+}
+
+.navbar .nav-item span {
+    font-size: 12px;
+    display: block;
+    margin-top: 2px;
+}
+
+.navbar .nav-item:hover {
+    background-color: #004d40;
+    color: #ffffff;
+    transition: background-color 0.3s ease;
 }
