@@ -24,58 +24,70 @@
     <div class="container">
         <h1>Daglig Omsättning</h1>
         <form id="omsattningForm">
-            <label for="date">Datum:</label>
-            <input type="date" id="date" required>
-
-            <label for="revenue">Omsättning:</label>
-            <input type="number" id="revenue">
-
-            <div class="form-group">
-                <input type="checkbox" id="isVacationDay">
-                <label for="isVacationDay">Semesterdag</label>
-                <input type="checkbox" id="isSickDay">
-                <label for="isSickDay">Sjukdag/VAB</label>
+            <div class="form-section">
+                <label for="date"><strong>Datum:</strong></label>
+                <input type="date" id="date" required>
             </div>
-
+    
+            <div class="form-section">
+                <label for="revenue"><strong>Omsättning:</strong></label>
+                <input type="number" id="revenue">
+            </div>
+    
+            <div class="form-group form-section">
+                <input type="checkbox" id="isVacationDay">
+                <label for="isVacationDay"><strong>Semesterdag</strong></label>
+                <input type="checkbox" id="isSickDay">
+                <label for="isSickDay"><strong>Sjukdag/VAB</strong></label>
+            </div>
+    
             <!-- Facklig tid och lön sektion -->
             <h3>Facklig tid/lön</h3>
-            <label for="unionHours">Facklig tid (timmar):</label>
-            <input type="number" id="unionHours">
-
-            <label for="unionWage">Facklig lön per timma:</label>
-            <input type="number" id="unionWage">
-
-            <div class="form-group">
-                <input type="checkbox" id="isFullDayUnion">
-                <label for="isFullDayUnion">Facklig tid hel dag</label>
+            <div class="form-section">
+                <label for="unionHours"><strong>Facklig tid (timmar):</strong></label>
+                <input type="number" id="unionHours">
             </div>
-
+    
+            <div class="form-section">
+                <label for="unionWage"><strong>Facklig lön per timma:</strong></label>
+                <input type="number" id="unionWage">
+            </div>
+    
+            <div class="form-group form-section">
+                <input type="checkbox" id="isFullDayUnion">
+                <label for="isFullDayUnion"><strong>Facklig tid hel dag</strong></label>
+            </div>
+    
             <!-- Distanstillägg sektion -->
             <h3>Distanstillägg</h3>
-            <label for="distanceBonus">Välj distanstillägg:</label>
-            <select id="distanceBonus">
-                <option value="0">Inget tillägg</option>
-                <option value="500">500 kr</option>
-                <option value="1000">1000 kr</option>
-            </select>
-
-            <button type="submit">Spara omsättning</button>
+            <div class="form-section">
+                <label for="distanceBonus"><strong>Välj distanstillägg:</strong></label>
+                <select id="distanceBonus">
+                    <option value="0">Inget tillägg</option>
+                    <option value="500">500 kr</option>
+                    <option value="1000">1000 kr</option>
+                </select>
+            </div>
+    
+            <button type="submit" class="btn btn-primary">Spara omsättning</button>
         </form>
         
         <h2>Visa och nollställ data per månad</h2>
-        <form id="monthForm">
-            <label for="month">Välj månad:</label>
+        <form id="monthForm" class="form-section">
+            <label for="month"><strong>Välj månad:</strong></label>
             <input type="month" id="month" required>
-            <button type="button" id="showRevenue">Visa Omsättning</button>
+            <button type="button" id="showRevenue" class="btn btn-secondary">Visa Omsättning</button>
         </form>
-        <form id="resetForm">
-            <label for="resetMonth">Välj månad att nollställa:</label>
+        
+        <form id="resetForm" class="form-section">
+            <label for="resetMonth"><strong>Välj månad att nollställa:</strong></label>
             <input type="month" id="resetMonth" required>
-            <button type="button" id="resetData">Nollställ data</button>
+            <button type="button" id="resetData" class="btn btn-danger">Nollställ data</button>
         </form>
-
-        <button onclick="location.href='dashboard.html'" class="btn">Tillbaka till Dashboard</button>
+    
+        <button onclick="location.href='dashboard.html'" class="btn btn-info">Tillbaka till Dashboard</button>
     </div>
+    
 
     <!-- Popup-fönster för att visa omsättning -->
     <div id="popup" class="popup hidden">
@@ -128,5 +140,30 @@
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
+    
+    
+    <div class="navbar">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Hem</span>
+        </a>
+        <a href="daglig_omsattning.html" class="nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Daglig Omsättning</span>
+        </a>
+        <a href="preliminar_lon.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Preliminär Lön</span>
+        </a>
+        <a href="historik.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>Historik</span>
+        </a>
+        <a href="installningar.html" class="nav-item">
+            <i class="fas fa-cogs"></i>
+            <span>Inställningar</span>
+        </a>
+    </div>
+    
 </body>
 </html>
