@@ -40,22 +40,27 @@
                 <input type="checkbox" id="isSickDay">
                 <label for="isSickDay"><strong>Sjukdag/VAB</strong></label>
             </div>
+
+            <!-- Knapp för att visa eller dölja facklig tid/lön-sektionen -->
+            <button type="button" id="toggleUnionSection" class="btn btn-secondary">Fackligt</button>
     
-            <!-- Facklig tid och lön sektion -->
-            <h3>Facklig tid/lön</h3>
-            <div class="form-section">
-                <label for="unionHours"><strong>Facklig tid (timmar):</strong></label>
-                <input type="number" id="unionHours">
-            </div>
-    
-            <div class="form-section">
-                <label for="unionWage"><strong>Facklig lön per timma:</strong></label>
-                <input type="number" id="unionWage">
-            </div>
-    
-            <div class="form-group form-section">
-                <input type="checkbox" id="isFullDayUnion">
-                <label for="isFullDayUnion"><strong>Facklig tid hel dag</strong></label>
+            <!-- Facklig tid och lön sektion, som är gömd som standard -->
+            <div id="unionSection" style="display: none;">
+                <h3>Facklig tid/lön</h3>
+                <div class="form-section">
+                    <label for="unionHours"><strong>Facklig tid (timmar):</strong></label>
+                    <input type="number" id="unionHours">
+                </div>
+        
+                <div class="form-section">
+                    <label for="unionWage"><strong>Facklig lön per timma:</strong></label>
+                    <input type="number" id="unionWage">
+                </div>
+        
+                <div class="form-group form-section">
+                    <input type="checkbox" id="isFullDayUnion">
+                    <label for="isFullDayUnion"><strong>Facklig tid hel dag</strong></label>
+                </div>
             </div>
     
             <!-- Distanstillägg sektion -->
@@ -140,7 +145,6 @@
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
-    
     
     <div class="navbar">
         <a href="dashboard.html" class="nav-item">
