@@ -10,7 +10,6 @@ const holidays = {
     "12-25": "Juldagen",
     "12-26": "Annandag jul",
     "12-31": "Nyårsafton"
-    // Lägg till fler helgdagar här
 };
 
 // Variabler för att referera till element
@@ -22,7 +21,7 @@ const resetMonthInput = document.getElementById('resetMonth');
 const popupTable = document.getElementById('popupTable').getElementsByTagName('tbody')[0];
 const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progressText');
-const closePopupButton = document.getElementById('closePopup'); // Stäng-knappen för popup
+const closePopupButton = document.getElementById('closePopup');
 let currentUser = null;
 let monthlySalary = 0;
 
@@ -53,14 +52,30 @@ omsattningForm.addEventListener('submit', async (e) => {
     const date = document.getElementById('date').value;
     const revenueInput = document.getElementById('revenue');
     const revenue = parseFloat(revenueInput.value) || 0;
-    const isVacationDay = document.getElementById('isVacationDay').checked;
-    const isSickDay = document.getElementById('isSickDay').checked;
+    const isVacationDay = document.getElementById('isVacationDay')?.checked || false;
+    const isSickDay = document.getElementById('isSickDay')?.checked || false;
+    const unionHours = parseFloat(document.getElementById('unionHours')?.value) || 0;
+    const unionWage = parseFloat(document.getElementById('unionWage')?.value) || 0;
+    const isFullDayUnion = document.getElementById('isFullDayUnion')?.checked || false;
+    const distanceBonus = parseFloat(document.getElementById('distanceBonus')?.value) || 0;
 
     let dailyProvision = 0;
     let totalSalary = 0;
+    let provisionReduction = 0;
+    let unionSalary = 0;
     let displayRevenue = '';
     let displaySalary = '';
 
+    // Beräkning för facklig tid och lön
+    if (isFullDayUnion) {
+        provisionReduction = 7816;
+        unionSalary = 8 * unionWage;
+    } else {
+        provisionReduction = unionHours * 977;
+        unionSalary = unionHours * unionWage;
+    }
+
+    // Hantera semester och sjukdagar
     if (isVacationDay) {
         displayRevenue = 'Semester';
         displaySalary = 'Semester';
@@ -70,12 +85,13 @@ omsattningForm.addEventListener('submit', async (e) => {
         displaySalary = 'Sjuk/VAB';
         revenueInput.value = '';
     } else {
-        dailyProvision = Math.max(0, revenue - 7816) * 0.17;
-        totalSalary = dailyProvision + (monthlySalary / 21);
+        dailyProvision = Math.max(0, revenue - (7816 - provisionReduction)) * 0.17;
+        totalSalary = dailyProvision + (monthlySalary / 21) + unionSalary + distanceBonus;
         displayRevenue = `${Math.round(revenue)} kr`;
         displaySalary = `${Math.round(totalSalary)} kr`;
     }
 
+    // Spara data till Firestore
     try {
         await addDoc(collection(db, 'revenues'), {
             uid: currentUser.uid,
@@ -85,8 +101,12 @@ omsattningForm.addEventListener('submit', async (e) => {
             displaySalary: displaySalary,
             isVacationDay: isVacationDay,
             isSickDay: isSickDay,
+            unionHours: unionHours,
+            unionWage: unionWage,
+            isFullDayUnion: isFullDayUnion,
             dailyProvision: dailyProvision,
             totalSalary: totalSalary,
+            distanceBonus: distanceBonus,
             timestamp: serverTimestamp()
         });
         alert('Omsättning sparad!');
@@ -142,15 +162,17 @@ showRevenueButton.addEventListener('click', async () => {
             }
 
             let infoIcon = '';
-            if (data.unionHours > 0 || data.distanceBonus > 0) {
-                const tooltipText = `Facklig tid: ${data.unionHours} timmar, Lön: ${data.unionWage} kr/timme, Distanstillägg: ${data.distanceBonus} kr`;
-                infoIcon = `<i class="fas fa-info-circle info-icon" data-tooltip="${tooltipText}"></i>`;
+            if (data.unionHours > 0 || data.isFullDayUnion || data.distanceBonus > 0) {
+                const tooltipText = data.isFullDayUnion 
+                    ? `Facklig heldag, Lön: ${8 * data.unionWage} kr`
+                    : `Facklig tid: ${data.unionHours} timmar, Lön: ${data.unionWage} kr/timme, Distanstillägg: ${data.distanceBonus} kr`;
+                infoIcon = `<i class="fas fa-info-circle info-icon tooltip"><span class="tooltiptext">${tooltipText}</span></i>`;
             }
 
             const row = popupTable.insertRow();
             row.innerHTML = `
                 <td>${new Date(data.date).toLocaleDateString()}</td>
-                <td>${data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A'} ${infoIcon}</td>
+                <td>${data.isFullDayUnion ? 'Fackligt Arbete' : (data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A')} ${infoIcon}</td>
                 <td>${data.isVacationDay || data.isSickDay ? 'Sjuk/semester' : `${Math.round(data.totalSalary)} kr`}</td>
                 <td><button class="delete-btn" data-id="${docSnapshot.id}">Ta bort</button></td>
             `;
@@ -228,58 +250,11 @@ showRevenueButton.addEventListener('click', async () => {
     }
 });
 
-// Funktion för att stänga popup-fönstret
-closePopupButton.addEventListener('click', () => {
-    console.log("Stänger popup-fönstret");
-    document.getElementById('popup').classList.remove('show');
-    document.getElementById('popup').classList.add('hidden');
-});
-
-// Funktion för att nollställa data för vald månad
-resetDataButton.addEventListener('click', async () => {
-    console.log("Nollställningsknappen klickades");
-
-    const selectedMonth = resetMonthInput.value;
-    if (!selectedMonth) {
-        alert('Vänligen välj en månad att nollställa.');
-        return;
-    }
-
-    const [year, month] = selectedMonth.split('-').map(Number);
-
-    if (confirm(`Är du säker på att du vill nollställa all data för ${selectedMonth}?`)) {
-        const startOfMonth = new Date(year, month - 1, 1).toISOString().split('T')[0];
-        const endOfMonth = new Date(year, month, 0).toISOString().split('T')[0];
-
-        const q = query(
-            collection(db, "revenues"),
-            where("uid", "==", currentUser.uid),
-            where("date", ">=", startOfMonth),
-            where("date", "<=", endOfMonth)
-        );
-
-        try {
-            const querySnapshot = await getDocs(q);
-            if (querySnapshot.empty) {
-                alert('Ingen data tillgänglig för den valda månaden.');
-                return;
-            }
-
-            // Skapa en batch-operation
-            const batch = writeBatch(db);
-
-            querySnapshot.forEach((docSnapshot) => {
-                const docRef = doc(db, "revenues", docSnapshot.id);
-                batch.delete(docRef);
-            });
-
-            await batch.commit();
-            alert(`All data för ${selectedMonth} har nollställts.`);
-            console.log(`Data nollställd för månad: ${selectedMonth}`);
-
-        } catch (error) {
-            console.error('Fel vid nollställning av data: ', error);
-            alert('Det gick inte att nollställa datan. Försök igen senare.');
-        }
+document.getElementById('toggleUnionSection').addEventListener('click', () => {
+    const unionSection = document.getElementById('unionSection');
+    if (unionSection.style.display === 'none' || unionSection.style.display === '') {
+        unionSection.style.display = 'block';
+    } else {
+        unionSection.style.display = 'none';
     }
 });
