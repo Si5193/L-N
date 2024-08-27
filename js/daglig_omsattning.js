@@ -145,10 +145,10 @@ showRevenueButton.addEventListener('click', async () => {
             return;
         }
 
-        // Variabler för att hålla reda på totalsummor
         let totalRevenue = 0;
         let workDays = 0;
         let totalEarnings = 0;
+        let nonWorkDays = 0; // Deklarera variabeln för sjuk-/semester-/VAB-dagar
 
         popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
 
