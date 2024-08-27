@@ -157,9 +157,11 @@ showRevenueButton.addEventListener('click', async () => {
             console.log("Datum:", data.date, "Omsättning:", data.revenue);
 
             if (!data.isVacationDay && !data.isSickDay) {
-                workDays++;
-                totalRevenue += data.revenue;
-            }
+    workDays++;
+    totalRevenue += data.revenue;
+} else {
+    nonWorkDays++; // Räknar sjuk-/semester-/VAB-dagar
+}
 
             let infoIcon = '';
             if (data.unionHours > 0 || data.isFullDayUnion || data.distanceBonus > 0) {
