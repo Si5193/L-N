@@ -145,10 +145,10 @@ showRevenueButton.addEventListener('click', async () => {
             return;
         }
 
+        // Variabler för att hålla reda på totalsummor
         let totalRevenue = 0;
         let workDays = 0;
         let totalEarnings = 0;
-        let nonWorkDays = 0; // Deklarera variabeln för sjuk-/semester-/VAB-dagar
 
         popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
 
@@ -157,11 +157,9 @@ showRevenueButton.addEventListener('click', async () => {
             console.log("Datum:", data.date, "Omsättning:", data.revenue);
 
             if (!data.isVacationDay && !data.isSickDay) {
-    workDays++;
-    totalRevenue += data.revenue;
-} else {
-    nonWorkDays++; // Räknar sjuk-/semester-/VAB-dagar
-}
+                workDays++;
+                totalRevenue += data.revenue;
+            }
 
             let infoIcon = '';
             if (data.unionHours > 0 || data.isFullDayUnion || data.distanceBonus > 0) {
@@ -227,7 +225,7 @@ showRevenueButton.addEventListener('click', async () => {
         }
 
         const provisionLimit = workDays * 7816;
-        const progressPercentage = ((workDays + nonWorkDays) / 21) * 100;
+        const progressPercentage = (workDays / 21) * 100;
         const averageSalary = workDays > 0 ? totalEarnings / workDays : 0;
 
         console.log("Total intjänad lön från tabellen:", Math.round(totalEarnings));
@@ -241,7 +239,7 @@ showRevenueButton.addEventListener('click', async () => {
         document.getElementById('averageSalaryDisplay').innerText = `Snittlön: ${Math.round(averageSalary)} kr/dag`;
 
         progressBar.style.width = `${progressPercentage}%`;
-        progressText.innerText = `Du har ${21 - (workDays + nonWorkDays)} dagar kvar att arbeta denna månad.`;
+        progressText.innerText = `Du har ${21 - workDays} dagar kvar att arbeta denna månad.`;
 
         // Visar popupen
         document.getElementById('popup').classList.remove('hidden');
