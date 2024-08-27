@@ -227,7 +227,7 @@ showRevenueButton.addEventListener('click', async () => {
         }
 
         const provisionLimit = workDays * 7816;
-        const progressPercentage = (workDays / 21) * 100;
+        const progressPercentage = ((workDays + nonWorkDays) / 21) * 100;
         const averageSalary = workDays > 0 ? totalEarnings / workDays : 0;
 
         console.log("Total intjänad lön från tabellen:", Math.round(totalEarnings));
@@ -241,7 +241,7 @@ showRevenueButton.addEventListener('click', async () => {
         document.getElementById('averageSalaryDisplay').innerText = `Snittlön: ${Math.round(averageSalary)} kr/dag`;
 
         progressBar.style.width = `${progressPercentage}%`;
-        progressText.innerText = `Du har ${21 - workDays} dagar kvar att arbeta denna månad.`;
+        progressText.innerText = `Du har ${21 - (workDays + nonWorkDays)} dagar kvar att arbeta denna månad.`;
 
         // Visar popupen
         document.getElementById('popup').classList.remove('hidden');
