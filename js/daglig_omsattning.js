@@ -22,6 +22,7 @@ const popupTable = document.getElementById('popupTable').getElementsByTagName('t
 const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progressText');
 const closePopupButton = document.getElementById('closePopup');
+const printButton = document.getElementById('printButton');
 let currentUser = null;
 let monthlySalary = 0;
 
@@ -163,6 +164,7 @@ showRevenueButton.addEventListener('click', async () => {
             if (dayOfWeek >= 1 && dayOfWeek <= 5 && !data.isVacationDay && !data.isSickDay) { // Endast måndag till fredag
                 workDays++;
                 totalRevenue += data.revenue;
+                totalEarnings += data.totalSalary; // Lägg till intjänad lön för varje arbetsdag
             }
 
             // Samla provisionReduction baserat på facklig tid
@@ -241,9 +243,11 @@ showRevenueButton.addEventListener('click', async () => {
 
         const progressPercentage = (workDays / 21) * 100;
         const averageSalary = workDays > 0 ? totalEarnings / workDays : 0;
+        const averageRevenue = workDays > 0 ? totalRevenue / workDays : 0;
 
         console.log("Total intjänad lön från tabellen:", Math.round(totalEarnings));
         console.log("Snittlön per dag:", Math.round(averageSalary));
+        console.log("Snittomsättning per dag:", Math.round(averageRevenue));
 
         // Uppdatera UI med alla resultat
         document.getElementById('totalRevenueDisplay').innerText = `Total Omsättning: ${Math.round(totalRevenue)} kr`;
@@ -251,9 +255,14 @@ showRevenueButton.addEventListener('click', async () => {
         document.getElementById('provisionLimitDisplay').innerText = `Provisionsgräns: ${Math.round(provisionLimit)} kr`;
         document.getElementById('currentEarningsDisplay').innerText = `Intjänad lön: ${Math.round(totalEarnings)} kr`;
         document.getElementById('averageSalaryDisplay').innerText = `Snittlön: ${Math.round(averageSalary)} kr/dag`;
+        document.getElementById('averageRevenueDisplay').innerText = `Snittomsättning: ${Math.round(averageRevenue)} kr/dag`;
 
-        progressBar.style.width = `${progressPercentage}%`;
-        progressText.innerText = `Du har ${remainingWorkDays} dagar kvar att arbeta denna månad.`;
+        if (remainingWorkDays === 0) {
+            progressBar.style.opacity = 0; // Fade bort progressbaren om månaden är slut
+        } else {
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.innerText = `Du har ${remainingWorkDays} dagar kvar att arbeta denna månad.`;
+        }
 
         // Visar popupen
         document.getElementById('popup').classList.remove('hidden');
@@ -262,6 +271,17 @@ showRevenueButton.addEventListener('click', async () => {
     } catch (error) {
         console.error('Fel vid hämtning av data:', error);
     }
+});
+
+// Stäng popupen när man klickar på krysset
+closePopupButton.addEventListener('click', () => {
+    document.getElementById('popup').classList.remove('show');
+    document.getElementById('popup').classList.add('hidden');
+});
+
+// Lägg till en knapp för utskrift av popupen
+printButton.addEventListener('click', () => {
+    window.print(); // Skriver ut hela popupen
 });
 
 document.getElementById('toggleUnionSection').addEventListener('click', () => {
