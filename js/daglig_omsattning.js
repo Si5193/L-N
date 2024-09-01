@@ -1,5 +1,5 @@
 import { auth, db } from './firebaseConfig.js';
-import { doc, getDoc, collection, addDoc, deleteDoc, serverTimestamp, query, where, getDocs, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc, deleteDoc, serverTimestamp, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Svenska helgdagar
@@ -149,6 +149,7 @@ showRevenueButton.addEventListener('click', async () => {
         let totalRevenue = 0;
         let workDays = 0;
         let totalEarnings = 0;
+        let totalProvisionReduction = 0;
 
         popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
 
@@ -156,9 +157,19 @@ showRevenueButton.addEventListener('click', async () => {
             const data = docSnapshot.data();
             console.log("Datum:", data.date, "Omsättning:", data.revenue);
 
-            if (!data.isVacationDay && !data.isSickDay) {
+            const dateObj = new Date(data.date);
+            const dayOfWeek = dateObj.getDay(); // Söndag = 0, Måndag = 1, ..., Lördag = 6
+
+            if (dayOfWeek >= 1 && dayOfWeek <= 5 && !data.isVacationDay && !data.isSickDay) { // Endast måndag till fredag
                 workDays++;
                 totalRevenue += data.revenue;
+            }
+
+            // Samla provisionReduction baserat på facklig tid
+            if (data.isFullDayUnion) {
+                totalProvisionReduction += 7816;
+            } else {
+                totalProvisionReduction += data.unionHours * 977;
             }
 
             let infoIcon = '';
@@ -215,16 +226,19 @@ showRevenueButton.addEventListener('click', async () => {
             }
         });
 
-        // Nu summerar vi intjänad lön direkt från tabellen
-        for (let i = 0; i < popupTable.rows.length; i++) {
-            const salaryCell = popupTable.rows[i].cells[2]; // Kolumnen för intjänad lön
-            const salaryValue = parseFloat(salaryCell.innerText.replace(' kr', '').replace('N/A', '0'));
-            if (!isNaN(salaryValue)) {
-                totalEarnings += salaryValue;
+        const provisionLimit = (workDays * 7816) - totalProvisionReduction;
+        const currentDate = new Date(); // Nuvarande datum
+        const daysInMonth = new Date(year, month, 0).getDate(); // Totala antal dagar i vald månad
+
+        let remainingWorkDays = 0;
+        for (let i = currentDate.getDate(); i <= daysInMonth; i++) {
+            const tempDate = new Date(year, month - 1, i);
+            const dayOfWeek = tempDate.getDay();
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Endast måndag till fredag
+                remainingWorkDays++;
             }
         }
 
-        const provisionLimit = workDays * 7816;
         const progressPercentage = (workDays / 21) * 100;
         const averageSalary = workDays > 0 ? totalEarnings / workDays : 0;
 
@@ -234,12 +248,12 @@ showRevenueButton.addEventListener('click', async () => {
         // Uppdatera UI med alla resultat
         document.getElementById('totalRevenueDisplay').innerText = `Total Omsättning: ${Math.round(totalRevenue)} kr`;
         document.getElementById('workDaysDisplay').innerText = `Arbetsdagar: ${workDays}`;
-        document.getElementById('provisionLimitDisplay').innerText = `Provisionsgräns: ${provisionLimit} kr`;
+        document.getElementById('provisionLimitDisplay').innerText = `Provisionsgräns: ${Math.round(provisionLimit)} kr`;
         document.getElementById('currentEarningsDisplay').innerText = `Intjänad lön: ${Math.round(totalEarnings)} kr`;
         document.getElementById('averageSalaryDisplay').innerText = `Snittlön: ${Math.round(averageSalary)} kr/dag`;
 
         progressBar.style.width = `${progressPercentage}%`;
-        progressText.innerText = `Du har ${21 - workDays} dagar kvar att arbeta denna månad.`;
+        progressText.innerText = `Du har ${remainingWorkDays} dagar kvar att arbeta denna månad.`;
 
         // Visar popupen
         document.getElementById('popup').classList.remove('hidden');
