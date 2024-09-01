@@ -93,12 +93,16 @@
         <button onclick="location.href='dashboard.html'" class="btn btn-info">Tillbaka till Dashboard</button>
     </div>
     
-
     <!-- Popup-fönster för att visa omsättning -->
     <div id="popup" class="popup hidden">
         <div class="popup-content">
             <span id="closePopup" class="close">&times;</span>
             <h2>Omsättning för vald månad</h2>
+
+            <!-- Ny utskriftsknapp -->
+            <button id="printButton" class="btn btn-secondary" style="position: absolute; top: 20px; right: 20px;">
+                <i class="fas fa-print"></i> Skriv ut
+            </button>
             
             <div class="summary-cards">
                 <div class="summary-card">
@@ -117,9 +121,13 @@
                     <i class="fas fa-minus-circle"></i>
                     <p id="averageSalaryDisplay"></p>
                 </div>
-                <div class="summary-card single">
+                <div class="summary-card">
                     <i class="fas fa-wallet"></i>
                     <p id="currentEarningsDisplay"></p>
+                </div>
+                <div class="summary-card">
+                    <i class="fas fa-chart-bar"></i>
+                    <p id="averageRevenueDisplay"></p> <!-- Element för snittomsättning -->
                 </div>
             </div>
 
@@ -142,10 +150,12 @@
         </div>
     </div>
 
+    <!-- JavaScript-filer -->
     <script type="module" src="js/firebaseConfig.js"></script>
     <script type="module" src="js/daglig_omsattning.js"></script>
     <script type="module" src="js/userProfile.js"></script>
     
+    <!-- Navigationsbar -->
     <div class="navbar">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-home"></i>
