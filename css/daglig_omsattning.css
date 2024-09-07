@@ -3,14 +3,12 @@ body, html {
     height: 100%;
     margin: 0;
     font-family: 'Roboto', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background: none;
-    overflow: hidden;
-    padding-bottom: 60px; /* Extra utrymme för att undvika överlappning med navbaren */
+    padding-bottom: 60px; /* Extra utrymme för navbaren */
+    overflow-x: hidden; /* Förhindra horisontell scroll */
 }
 
+/* Videobakgrund */
 .bg-video {
     position: fixed;
     top: 50%;
@@ -21,8 +19,10 @@ body, html {
     height: auto;
     z-index: -1;
     transform: translate(-50%, -50%);
+    background-size: cover;
 }
 
+/* Användarprofil och dropdown */
 .user-profile {
     position: absolute;
     top: 10px;
@@ -41,8 +41,8 @@ body, html {
     position: absolute;
     background-color: #f9f9f9;
     min-width: 100px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 10;
     right: 0;
 }
 
@@ -57,32 +57,28 @@ body, html {
     background-color: #f1f1f1;
 }
 
+/* Container */
 .container {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 1200px; /* Ökar maxbredden för att göra containern bredare */
-    width: 90%; /* För att behålla responsiviteten */
+    max-width: 1200px;
+    width: 90%;
     text-align: center;
-    margin: 20px auto; /* Centrerar containern horisontellt */
+    margin: 20px auto;
     animation: fadeIn 1s forwards;
-    max-height: 80vh; /* Begränsar höjden så att den inte går för långt ner */
-    overflow-y: auto; /* Lägg till scrollbar om innehållet överstiger maxhöjden */
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
-
-label {
-    font-weight: bold; /* Gör texten framför varje inmatningsfält fet */
-    color: #333; /* Förbättrar kontrasten för bättre läsbarhet */
-}
-
+/* Popup-stilar */
 .popup {
     position: fixed;
-    top: 10%; /* Flyttar popupen lite högre för att ge utrymme för navbaren */
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -10%);
-    z-index: 2000; /* Ökar z-index för att säkerställa att den är ovanför navigationsfältet */
+    transform: translate(-50%, -50%);
+    z-index: 2000;
     width: 90%;
     max-width: 1200px;
     height: auto;
@@ -93,26 +89,32 @@ label {
     padding: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     display: none;
-}
-
-.close {
-    position: absolute;
-    top: 15px; /* Justerar ner krysset så att det inte ligger för högt */
-    right: 20px; /* Placerar det lite längre från kanten */
-    font-size: 26px; /* Gör krysset större */
-    cursor: pointer;
-    color: #333; /* Gör krysset mörkare för bättre synlighet */
-    transition: color 0.3s ease;
-}
-
-.close:hover {
-    color: #e74c3c; /* Förändrar färgen när man hovrar över krysset för bättre användarupplevelse */
+    opacity: 0;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    visibility: hidden;
 }
 
 .popup.show {
     display: block;
+    opacity: 1;
+    visibility: visible;
 }
 
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 26px;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #e74c3c;
+}
+
+/* Sammanfattningskort */
 .summary-cards {
     display: flex;
     flex-wrap: wrap;
@@ -136,8 +138,6 @@ label {
 
 .summary-card.single {
     width: calc(100% - 20px);
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .summary-card i {
@@ -153,6 +153,7 @@ label {
     color: #333;
 }
 
+/* Popup-tabell */
 #popupTable {
     width: 100%;
     border-collapse: collapse;
@@ -174,12 +175,13 @@ label {
     color: #555;
 }
 
+/* Progress bar */
 .progress-container {
     width: 100%;
     background-color: #e0e0e0;
     border-radius: 8px;
     margin-top: 20px;
-    height: 30px; /* Öka höjden för mer utrymme för texten */
+    height: 30px;
     overflow: hidden;
     position: relative;
 }
@@ -189,39 +191,21 @@ label {
     background-color: #4caf50;
     width: 0%;
     transition: width 0.4s ease;
-    position: relative;
-    display: flex; /* Lägg till flexbox för att centrera innehåll */
-    align-items: center; /* Centrera vertikalt */
-    justify-content: center; /* Centrera horisontellt */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .progress-bar span {
-    position: relative;
     color: black;
     font-weight: bold;
     font-size: 14px;
-    white-space: nowrap; /* Förhindra att texten bryts */
-    z-index: 1;
+    white-space: nowrap;
+    width: 100%;
     text-align: center;
-    width: 100%; /* Se till att texten tar upp hela barens bredd */
 }
 
-.red-text {
-    color: red;
-    font-weight: bold;
-}
-
-@media (max-width: 768px) {
-    .summary-card {
-        width: calc(100% - 20px);
-        margin: 10px auto;
-    }
-    .summary-card.single {
-        width: calc(100% - 20px);
-    }
-}
-
-/* Tooltip-stil */
+/* Tooltip */
 .tooltip {
     position: relative;
     display: inline-block;
@@ -238,7 +222,7 @@ label {
     padding: 5px 0;
     position: absolute;
     z-index: 1;
-    bottom: 125%; /* Placera tooltipen ovanför texten */
+    bottom: 125%;
     left: 50%;
     margin-left: -100px;
     opacity: 0;
@@ -263,7 +247,7 @@ label {
     word-wrap: break-word;
 }
 
-/* Styling för navbaren */
+/* Navbar */
 .navbar {
     position: fixed;
     bottom: 0;
@@ -275,33 +259,30 @@ label {
     padding: 10px 0;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    transition: bottom 0.3s ease; /* Gör så att navbaren kan fällas ut/in */
-}
-
-.navbar.hidden {
-    bottom: -60px; /* Döljer navbaren under skärmen när den är gömd */
 }
 
 .navbar .nav-item {
     color: white;
     text-align: center;
     text-decoration: none;
-    flex-grow: 1;
 }
 
 .navbar .nav-item i {
     font-size: 20px;
-    display: block;
 }
 
 .navbar .nav-item span {
     font-size: 12px;
-    display: block;
     margin-top: 2px;
 }
 
 .navbar .nav-item:hover {
     background-color: #004d40;
-    color: #ffffff;
-    transition: background-color 0.3s ease;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    .summary-card {
+        width: calc(100% - 20px);
+    }
 }
