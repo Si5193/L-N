@@ -23,6 +23,8 @@ const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progressText');
 const closePopupButton = document.getElementById('closePopup');
 const printButton = document.getElementById('printButton');
+const isVacationDayCheckbox = document.getElementById('isVacationDay');
+const vacationSalaryField = document.getElementById('vacationSalaryField');
 let currentUser = null;
 let monthlySalary = 0;
 
@@ -45,6 +47,18 @@ async function fetchMonthlySalary(uid) {
     }
 }
 
+// Visa eller dölj fältet för semesterdaglön baserat på checkbox status
+isVacationDayCheckbox.addEventListener('change', function() {
+    if (this.checked) {
+        vacationSalaryField.style.display = 'block';
+        vacationSalaryField.style.opacity = 0;
+        setTimeout(() => vacationSalaryField.style.opacity = 1, 10); // Fade in effekten
+    } else {
+        vacationSalaryField.style.opacity = 0;
+        setTimeout(() => vacationSalaryField.style.display = 'none', 300); // Fade out effekten
+    }
+});
+
 // Hantera formulärinlämning för att spara omsättning
 omsattningForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -54,6 +68,7 @@ omsattningForm.addEventListener('submit', async (e) => {
     const revenueInput = document.getElementById('revenue');
     const revenue = parseFloat(revenueInput.value) || 0;
     const isVacationDay = document.getElementById('isVacationDay')?.checked || false;
+    const vacationSalary = parseFloat(document.getElementById('vacationSalary')?.value) || 0;
     const isSickDay = document.getElementById('isSickDay')?.checked || false;
     const unionHours = parseFloat(document.getElementById('unionHours')?.value) || 0;
     const unionWage = parseFloat(document.getElementById('unionWage')?.value) || 0;
@@ -66,6 +81,7 @@ omsattningForm.addEventListener('submit', async (e) => {
     let unionSalary = 0;
     let displayRevenue = '';
     let displaySalary = '';
+    let provisionLimitAdjustment = 0;  // Justering för provisionsgränsen
 
     // Beräkning för facklig tid och lön
     if (isFullDayUnion) {
@@ -79,7 +95,9 @@ omsattningForm.addEventListener('submit', async (e) => {
     // Hantera semester och sjukdagar
     if (isVacationDay) {
         displayRevenue = 'Semester';
-        displaySalary = 'Semester';
+        totalSalary = vacationSalary;  // Lägger till semesterdaglönen
+        displaySalary = `${Math.round(totalSalary)} kr`; // Visar lönen för semesterdagen
+        provisionLimitAdjustment = 7816;  // Minska provisionsgränsen med 7816 kr
         revenueInput.value = '';
     } else if (isSickDay) {
         displayRevenue = 'Sjuk/VAB';
@@ -106,8 +124,9 @@ omsattningForm.addEventListener('submit', async (e) => {
             unionWage: unionWage,
             isFullDayUnion: isFullDayUnion,
             dailyProvision: dailyProvision,
-            totalSalary: totalSalary,
+            totalSalary: totalSalary,  // Uppdatera total lön inklusive semesterdaglön
             distanceBonus: distanceBonus,
+            provisionLimitAdjustment: provisionLimitAdjustment,  // Lägg till provisionsjusteringen
             timestamp: serverTimestamp()
         });
         alert('Omsättning sparad!');
@@ -151,6 +170,7 @@ showRevenueButton.addEventListener('click', async () => {
         let workDays = 0;
         let totalEarnings = 0;
         let totalProvisionReduction = 0;
+        let totalProvisionAdjustment = 0;  // Total justering för provisionsgränsen (för semester)
 
         popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
 
@@ -174,73 +194,20 @@ showRevenueButton.addEventListener('click', async () => {
                 totalProvisionReduction += data.unionHours * 977;
             }
 
-            let infoIcon = '';
-            if (data.unionHours > 0 || data.isFullDayUnion || data.distanceBonus > 0) {
-                const tooltipText = data.isFullDayUnion 
-                    ? `Facklig heldag, Lön: ${8 * data.unionWage} kr`
-                    : `Facklig tid: ${data.unionHours} timmar, Lön: ${data.unionWage} kr/timme, Distanstillägg: ${data.distanceBonus} kr`;
-                infoIcon = `<i class="fas fa-info-circle info-icon tooltip"><span class="tooltiptext">${tooltipText}</span></i>`;
+            // Samla provisionsjustering för semesterdagar
+            if (data.isVacationDay) {
+                totalProvisionAdjustment += 7816;  // Lägg till provisionsjusteringen
             }
 
             const row = popupTable.insertRow();
             row.innerHTML = `
                 <td>${new Date(data.date).toLocaleDateString()}</td>
-                <td>${data.isFullDayUnion ? 'Fackligt Arbete' : (data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A')} ${infoIcon}</td>
+                <td>${data.isFullDayUnion ? 'Fackligt Arbete' : (data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A')}</td>
                 <td>${data.isVacationDay || data.isSickDay ? 'Sjuk/semester' : `${Math.round(data.totalSalary)} kr`}</td>
-                <td><button class="delete-btn" data-id="${docSnapshot.id}">Ta bort</button></td>
             `;
-
-            // Lägg till klick-hanterare för att ta bort data
-            row.querySelector('.delete-btn').addEventListener('click', async (event) => {
-                const docId = event.target.getAttribute('data-id');
-                if (confirm('Är du säker på att du vill ta bort denna post?')) {
-                    try {
-                        const docRef = doc(db, "revenues", docId);
-                        await deleteDoc(docRef);
-                        alert('Dagen har tagits bort.');
-                        row.remove(); // Ta bort raden från tabellen
-                    } catch (error) {
-                        console.error('Fel vid borttagning av dokument:', error);
-                        alert('Det gick inte att ta bort dagen. Försök igen senare.');
-                    }
-                }
-            });
-
-            // Lägg till klick-hanterare för mobilvänlig tooltip
-            const infoIconElement = row.querySelector('.info-icon');
-            if (infoIconElement) {
-                infoIconElement.addEventListener('click', (event) => {
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'mobile-tooltip';
-                    tooltip.innerText = event.target.getAttribute('data-tooltip');
-                    document.body.appendChild(tooltip);
-
-                    // Placera tooltip nära ikonen
-                    const rect = event.target.getBoundingClientRect();
-                    tooltip.style.left = `${rect.left}px`;
-                    tooltip.style.top = `${rect.bottom + 5}px`;
-
-                    // Ta bort tooltipen efter en tid
-                    setTimeout(() => {
-                        tooltip.remove();
-                    }, 3000);
-                });
-            }
         });
 
-        const provisionLimit = (workDays * 7816) - totalProvisionReduction;
-        const currentDate = new Date(); // Nuvarande datum
-        const daysInMonth = new Date(year, month, 0).getDate(); // Totala antal dagar i vald månad
-
-        let remainingWorkDays = 0;
-        for (let i = currentDate.getDate(); i <= daysInMonth; i++) {
-            const tempDate = new Date(year, month - 1, i);
-            const dayOfWeek = tempDate.getDay();
-            if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Endast måndag till fredag
-                remainingWorkDays++;
-            }
-        }
-
+        const provisionLimit = (workDays * 7816) - totalProvisionReduction - totalProvisionAdjustment;  // Minska provisionsgränsen för semesterdagar
         const progressPercentage = (workDays / 21) * 100;
         const averageSalary = workDays > 0 ? totalEarnings / workDays : 0;
         const averageRevenue = workDays > 0 ? totalRevenue / workDays : 0;
@@ -256,17 +223,6 @@ showRevenueButton.addEventListener('click', async () => {
         document.getElementById('currentEarningsDisplay').innerText = `Intjänad lön: ${Math.round(totalEarnings)} kr`;
         document.getElementById('averageSalaryDisplay').innerText = `Snittlön: ${Math.round(averageSalary)} kr/dag`;
         document.getElementById('averageRevenueDisplay').innerText = `Snittomsättning: ${Math.round(averageRevenue)} kr/dag`;
-
-        if (remainingWorkDays === 0) {
-            progressBar.style.opacity = 0; // Fade bort progressbaren om månaden är slut
-        } else {
-            progressBar.style.width = `${progressPercentage}%`;
-            progressText.innerText = `Du har ${remainingWorkDays} dagar kvar att arbeta denna månad.`;
-        }
-
-        // Visar popupen
-        document.getElementById('popup').classList.remove('hidden');
-        document.getElementById('popup').classList.add('show');
 
     } catch (error) {
         console.error('Fel vid hämtning av data:', error);
