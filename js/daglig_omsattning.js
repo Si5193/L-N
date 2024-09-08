@@ -202,7 +202,24 @@ showRevenueButton.addEventListener('click', async () => {
                 <td>${new Date(data.date).toLocaleDateString()}</td>
                 <td>${data.isFullDayUnion ? 'Fackligt Arbete' : (data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A')}</td>
                 <td>${data.isVacationDay || data.isSickDay ? 'Sjuk/semester' : `${Math.round(data.totalSalary)} kr`}</td>
+                <td><button class="delete-btn" data-id="${docSnapshot.id}">Ta bort</button></td>
             `;
+
+            // Lägg till klick-hanterare för att ta bort data
+            row.querySelector('.delete-btn').addEventListener('click', async (event) => {
+                const docId = event.target.getAttribute('data-id');
+                if (confirm('Är du säker på att du vill ta bort denna post?')) {
+                    try {
+                        const docRef = doc(db, "revenues", docId);
+                        await deleteDoc(docRef);
+                        alert('Dagen har tagits bort.');
+                        row.remove(); // Ta bort raden från tabellen
+                    } catch (error) {
+                        console.error('Fel vid borttagning av dokument:', error);
+                        alert('Det gick inte att ta bort dagen. Försök igen senare.');
+                    }
+                }
+            });
         });
 
         // Uppdatera provisionsgränsen med semesterdagarnas reduktion
@@ -225,4 +242,15 @@ showRevenueButton.addEventListener('click', async () => {
     } catch (error) {
         console.error('Fel vid hämtning av data:', error);
     }
+});
+
+// Stäng popupen när man klickar på krysset
+closePopupButton.addEventListener('click', () => {
+    document.getElementById('popup').classList.remove('show');
+    document.getElementById('popup').classList.add('hidden');
+});
+
+// Lägg till en knapp för utskrift av popupen
+printButton.addEventListener('click', () => {
+    window.print(); // Skriver ut hela popupen
 });
