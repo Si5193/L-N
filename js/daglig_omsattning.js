@@ -23,22 +23,8 @@ const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progressText');
 const closePopupButton = document.getElementById('closePopup');
 const printButton = document.getElementById('printButton');
-const isVacationDayCheckbox = document.getElementById('isVacationDay');
-const vacationSalaryField = document.getElementById('vacationSalaryField');
-const vacationSalaryInput = document.getElementById('vacationSalary');
-const popup = document.getElementById('popup'); // Popup elementet
 let currentUser = null;
 let monthlySalary = 0;
-
-// Visa eller dölj fältet för semesterdaglön baserat på checkbox status
-isVacationDayCheckbox.addEventListener('change', function() {
-    if (this.checked) {
-        vacationSalaryField.style.display = 'block';
-    } else {
-        vacationSalaryField.style.display = 'none';
-        vacationSalaryInput.value = ''; // Rensa värdet när fältet göms
-    }
-});
 
 // Hämta användarens information
 onAuthStateChanged(auth, async (user) => {
@@ -68,7 +54,6 @@ omsattningForm.addEventListener('submit', async (e) => {
     const revenueInput = document.getElementById('revenue');
     const revenue = parseFloat(revenueInput.value) || 0;
     const isVacationDay = document.getElementById('isVacationDay')?.checked || false;
-    const vacationSalary = parseFloat(document.getElementById('vacationSalary')?.value) || 0;
     const isSickDay = document.getElementById('isSickDay')?.checked || false;
     const unionHours = parseFloat(document.getElementById('unionHours')?.value) || 0;
     const unionWage = parseFloat(document.getElementById('unionWage')?.value) || 0;
@@ -94,10 +79,8 @@ omsattningForm.addEventListener('submit', async (e) => {
     // Hantera semester och sjukdagar
     if (isVacationDay) {
         displayRevenue = 'Semester';
-        totalSalary = vacationSalary;  // Lägg till semesterdaglönen
-        displaySalary = `${Math.round(totalSalary)} kr`; // Visa semesterdaglönen
-        provisionReduction = 7816; // Minska provisionsgränsen med 7816 kr
-        revenueInput.value = ''; // Tömma omsättningsfältet
+        displaySalary = 'Semester';
+        revenueInput.value = '';
     } else if (isSickDay) {
         displayRevenue = 'Sjuk/VAB';
         displaySalary = 'Sjuk/VAB';
@@ -118,7 +101,6 @@ omsattningForm.addEventListener('submit', async (e) => {
             displayRevenue: displayRevenue,
             displaySalary: displaySalary,
             isVacationDay: isVacationDay,
-            vacationSalary: vacationSalary, // Spara semesterdaglönen
             isSickDay: isSickDay,
             unionHours: unionHours,
             unionWage: unionWage,
@@ -126,7 +108,6 @@ omsattningForm.addEventListener('submit', async (e) => {
             dailyProvision: dailyProvision,
             totalSalary: totalSalary,
             distanceBonus: distanceBonus,
-            provisionReduction: provisionReduction,
             timestamp: serverTimestamp()
         });
         alert('Omsättning sparad!');
@@ -149,10 +130,6 @@ showRevenueButton.addEventListener('click', async () => {
     const [year, month] = selectedMonth.split('-').map(Number);
     console.log(`Visar data för månad: ${year}-${month}`);
 
-    // Visa popupen
-    popup.classList.remove('hidden');
-    popup.classList.add('show');
-
     // Hämta data från Firebase
     const q = query(
         collection(db, "revenues"),
@@ -174,8 +151,6 @@ showRevenueButton.addEventListener('click', async () => {
         let workDays = 0;
         let totalEarnings = 0;
         let totalProvisionReduction = 0;
-        let totalVacationProvisionReduction = 0; // Lägg till semesterdagarnas reduktion
-        let totalVacationSalary = 0; // Lägg till för att samla semesterdagarnas lön
 
         popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
 
@@ -186,10 +161,7 @@ showRevenueButton.addEventListener('click', async () => {
             const dateObj = new Date(data.date);
             const dayOfWeek = dateObj.getDay(); // Söndag = 0, Måndag = 1, ..., Lördag = 6
 
-            if (data.isVacationDay) {
-                totalVacationSalary += data.vacationSalary; // Lägg till semesterdaglön
-                totalVacationProvisionReduction += 7816; // Subtrahera 7816 kr per semesterdag från provisionsgränsen
-            } else if (dayOfWeek >= 1 && dayOfWeek <= 5 && !data.isSickDay) {
+            if (dayOfWeek >= 1 && dayOfWeek <= 5 && !data.isVacationDay && !data.isSickDay) { // Endast måndag till fredag
                 workDays++;
                 totalRevenue += data.revenue;
                 totalEarnings += data.totalSalary; // Lägg till intjänad lön för varje arbetsdag
@@ -202,10 +174,18 @@ showRevenueButton.addEventListener('click', async () => {
                 totalProvisionReduction += data.unionHours * 977;
             }
 
+            let infoIcon = '';
+            if (data.unionHours > 0 || data.isFullDayUnion || data.distanceBonus > 0) {
+                const tooltipText = data.isFullDayUnion 
+                    ? `Facklig heldag, Lön: ${8 * data.unionWage} kr`
+                    : `Facklig tid: ${data.unionHours} timmar, Lön: ${data.unionWage} kr/timme, Distanstillägg: ${data.distanceBonus} kr`;
+                infoIcon = `<i class="fas fa-info-circle info-icon tooltip"><span class="tooltiptext">${tooltipText}</span></i>`;
+            }
+
             const row = popupTable.insertRow();
             row.innerHTML = `
                 <td>${new Date(data.date).toLocaleDateString()}</td>
-                <td>${data.isFullDayUnion ? 'Fackligt Arbete' : (data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A')}</td>
+                <td>${data.isFullDayUnion ? 'Fackligt Arbete' : (data.revenue ? `${Math.round(data.revenue)} kr` : 'N/A')} ${infoIcon}</td>
                 <td>${data.isVacationDay || data.isSickDay ? 'Sjuk/semester' : `${Math.round(data.totalSalary)} kr`}</td>
                 <td><button class="delete-btn" data-id="${docSnapshot.id}">Ta bort</button></td>
             `;
@@ -225,16 +205,49 @@ showRevenueButton.addEventListener('click', async () => {
                     }
                 }
             });
+
+            // Lägg till klick-hanterare för mobilvänlig tooltip
+            const infoIconElement = row.querySelector('.info-icon');
+            if (infoIconElement) {
+                infoIconElement.addEventListener('click', (event) => {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'mobile-tooltip';
+                    tooltip.innerText = event.target.getAttribute('data-tooltip');
+                    document.body.appendChild(tooltip);
+
+                    // Placera tooltip nära ikonen
+                    const rect = event.target.getBoundingClientRect();
+                    tooltip.style.left = `${rect.left}px`;
+                    tooltip.style.top = `${rect.bottom + 5}px`;
+
+                    // Ta bort tooltipen efter en tid
+                    setTimeout(() => {
+                        tooltip.remove();
+                    }, 3000);
+                });
+            }
         });
 
-        // Uppdatera provisionsgränsen med semesterdagarnas reduktion
-        const provisionLimit = (workDays * 7816) - totalProvisionReduction - totalVacationProvisionReduction;
+        const provisionLimit = (workDays * 7816) - totalProvisionReduction;
+        const currentDate = new Date(); // Nuvarande datum
+        const daysInMonth = new Date(year, month, 0).getDate(); // Totala antal dagar i vald månad
 
-        // Uppdatera total intjänad lön med semesterdaglön
-        totalEarnings += totalVacationSalary;
+        let remainingWorkDays = 0;
+        for (let i = currentDate.getDate(); i <= daysInMonth; i++) {
+            const tempDate = new Date(year, month - 1, i);
+            const dayOfWeek = tempDate.getDay();
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Endast måndag till fredag
+                remainingWorkDays++;
+            }
+        }
 
+        const progressPercentage = (workDays / 21) * 100;
         const averageSalary = workDays > 0 ? totalEarnings / workDays : 0;
         const averageRevenue = workDays > 0 ? totalRevenue / workDays : 0;
+
+        console.log("Total intjänad lön från tabellen:", Math.round(totalEarnings));
+        console.log("Snittlön per dag:", Math.round(averageSalary));
+        console.log("Snittomsättning per dag:", Math.round(averageRevenue));
 
         // Uppdatera UI med alla resultat
         document.getElementById('totalRevenueDisplay').innerText = `Total Omsättning: ${Math.round(totalRevenue)} kr`;
@@ -244,6 +257,17 @@ showRevenueButton.addEventListener('click', async () => {
         document.getElementById('averageSalaryDisplay').innerText = `Snittlön: ${Math.round(averageSalary)} kr/dag`;
         document.getElementById('averageRevenueDisplay').innerText = `Snittomsättning: ${Math.round(averageRevenue)} kr/dag`;
 
+        if (remainingWorkDays === 0) {
+            progressBar.style.opacity = 0; // Fade bort progressbaren om månaden är slut
+        } else {
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.innerText = `Du har ${remainingWorkDays} dagar kvar att arbeta denna månad.`;
+        }
+
+        // Visar popupen
+        document.getElementById('popup').classList.remove('hidden');
+        document.getElementById('popup').classList.add('show');
+
     } catch (error) {
         console.error('Fel vid hämtning av data:', error);
     }
@@ -251,11 +275,20 @@ showRevenueButton.addEventListener('click', async () => {
 
 // Stäng popupen när man klickar på krysset
 closePopupButton.addEventListener('click', () => {
-    popup.classList.remove('show');
-    popup.classList.add('hidden');
+    document.getElementById('popup').classList.remove('show');
+    document.getElementById('popup').classList.add('hidden');
 });
 
 // Lägg till en knapp för utskrift av popupen
 printButton.addEventListener('click', () => {
     window.print(); // Skriver ut hela popupen
+});
+
+document.getElementById('toggleUnionSection').addEventListener('click', () => {
+    const unionSection = document.getElementById('unionSection');
+    if (unionSection.style.display === 'none' || unionSection.style.display === '') {
+        unionSection.style.display = 'block';
+    } else {
+        unionSection.style.display = 'none';
+    }
 });
