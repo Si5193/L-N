@@ -23,6 +23,13 @@ const progressBar = document.getElementById('progress-bar');
 const progressText = document.getElementById('progressText');
 const closePopupButton = document.getElementById('closePopup');
 const printButton = document.getElementById('printButton');
+
+// Nya element för valfri ersättning/avdrag
+const toggleExtraFieldsButton = document.getElementById('toggleExtraFieldsButton');
+const extraFields = document.getElementById('extraFields');
+const customEarningsInput = document.getElementById('customEarnings');
+const customDeductionInput = document.getElementById('customDeduction');
+
 let currentUser = null;
 let monthlySalary = 0;
 
@@ -44,6 +51,17 @@ async function fetchMonthlySalary(uid) {
         monthlySalary = userDoc.data().monthlySalary;
     }
 }
+
+// Hantera visning och döljs av valfria fält
+toggleExtraFieldsButton.addEventListener('click', () => {
+    if (extraFields.style.display === 'none' || extraFields.style.display === '') {
+        extraFields.style.display = 'block';
+        setTimeout(() => extraFields.style.opacity = 1, 10); // Fade-in effekten
+    } else {
+        extraFields.style.opacity = 0;
+        setTimeout(() => extraFields.style.display = 'none', 500); // Fade-out effekten
+    }
+});
 
 // Hantera formulärinlämning för att spara omsättning
 omsattningForm.addEventListener('submit', async (e) => {
@@ -152,6 +170,10 @@ showRevenueButton.addEventListener('click', async () => {
         let totalEarnings = 0;
         let totalProvisionReduction = 0;
 
+        // Få input från de nya fälten för valfri ersättning/avdrag
+        const customEarnings = parseFloat(customEarningsInput.value) || 0;
+        const customDeduction = parseFloat(customDeductionInput.value) || 0;
+
         popupTable.innerHTML = ''; // Töm tabellen innan ny data läggs till
 
         querySnapshot.forEach((docSnapshot) => {
@@ -228,7 +250,12 @@ showRevenueButton.addEventListener('click', async () => {
             }
         });
 
+        // Uppdatera totalsummor med valfri ersättning och avdrag
+        totalEarnings += customEarnings; // Lägg till valfri ersättning till intjänad lön
+        totalProvisionReduction += customDeduction; // Dra av från provisionsgränsen
+
         const provisionLimit = (workDays * 7816) - totalProvisionReduction;
+
         const currentDate = new Date(); // Nuvarande datum
         const daysInMonth = new Date(year, month, 0).getDate(); // Totala antal dagar i vald månad
 
@@ -236,7 +263,7 @@ showRevenueButton.addEventListener('click', async () => {
         for (let i = currentDate.getDate(); i <= daysInMonth; i++) {
             const tempDate = new Date(year, month - 1, i);
             const dayOfWeek = tempDate.getDay();
-            if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Endast måndag till fredag
+                        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Endast måndag till fredag
                 remainingWorkDays++;
             }
         }
