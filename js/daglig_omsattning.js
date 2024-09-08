@@ -26,6 +26,7 @@ const printButton = document.getElementById('printButton');
 const isVacationDayCheckbox = document.getElementById('isVacationDay');
 const vacationSalaryField = document.getElementById('vacationSalaryField');
 const vacationSalaryInput = document.getElementById('vacationSalary');
+const popup = document.getElementById('popup'); // Popup elementet
 let currentUser = null;
 let monthlySalary = 0;
 
@@ -148,6 +149,10 @@ showRevenueButton.addEventListener('click', async () => {
     const [year, month] = selectedMonth.split('-').map(Number);
     console.log(`Visar data för månad: ${year}-${month}`);
 
+    // Visa popupen
+    popup.classList.remove('hidden');
+    popup.classList.add('show');
+
     // Hämta data från Firebase
     const q = query(
         collection(db, "revenues"),
@@ -246,8 +251,8 @@ showRevenueButton.addEventListener('click', async () => {
 
 // Stäng popupen när man klickar på krysset
 closePopupButton.addEventListener('click', () => {
-    document.getElementById('popup').classList.remove('show');
-    document.getElementById('popup').classList.add('hidden');
+    popup.classList.remove('show');
+    popup.classList.add('hidden');
 });
 
 // Lägg till en knapp för utskrift av popupen
