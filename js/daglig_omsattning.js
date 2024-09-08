@@ -52,7 +52,7 @@ async function fetchMonthlySalary(uid) {
     }
 }
 
-// Hantera visning och döljs av valfria fält
+// Visa eller dölja extra fält för ersättning och avdrag med fade-in-effekt
 toggleExtraFieldsButton.addEventListener('click', () => {
     if (extraFields.style.display === 'none' || extraFields.style.display === '') {
         extraFields.style.display = 'block';
@@ -263,7 +263,7 @@ showRevenueButton.addEventListener('click', async () => {
         for (let i = currentDate.getDate(); i <= daysInMonth; i++) {
             const tempDate = new Date(year, month - 1, i);
             const dayOfWeek = tempDate.getDay();
-                        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Endast måndag till fredag
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Endast måndag till fredag
                 remainingWorkDays++;
             }
         }
@@ -309,13 +309,4 @@ closePopupButton.addEventListener('click', () => {
 // Lägg till en knapp för utskrift av popupen
 printButton.addEventListener('click', () => {
     window.print(); // Skriver ut hela popupen
-});
-
-document.getElementById('toggleUnionSection').addEventListener('click', () => {
-    const unionSection = document.getElementById('unionSection');
-    if (unionSection.style.display === 'none' || unionSection.style.display === '') {
-        unionSection.style.display = 'block';
-    } else {
-        unionSection.style.display = 'none';
-    }
 });
