@@ -37,32 +37,9 @@
             <div class="form-group form-section">
                 <input type="checkbox" id="isVacationDay">
                 <label for="isVacationDay"><strong>Semesterdag</strong></label>
-                
-                <!-- Nytt inputfält för semesterdaglön, dolt som standard -->
-                <div id="vacationSalaryField" style="display: none; margin-top: 10px;">
-                    <label for="vacationSalary"><strong>Lön för semesterdag:</strong></label>
-                    <input type="number" id="vacationSalary" placeholder="Ange semesterdaglön">
-                </div>
-
                 <input type="checkbox" id="isSickDay">
                 <label for="isSickDay"><strong>Sjukdag/VAB</strong></label>
             </div>
-
-            <!-- Knapp för att visa/dölja valfri ersättning/avdrag -->
-<button type="button" id="toggleExtraFieldsButton" class="btn btn-secondary">Valfri ersättning/avdrag</button>
-
-<!-- Sektion för valfri ersättning/avdrag, dold som standard -->
-<div id="extraFields" style="display: none; opacity: 0; transition: opacity 0.5s;">
-    <div class="form-section">
-        <label for="customEarnings"><strong>Valfri ersättning till lön:</strong></label>
-        <input type="number" id="customEarnings" placeholder="Ange valfri ersättning">
-    </div>
-
-    <div class="form-section">
-        <label for="customDeduction"><strong>Valfritt avdrag från provisionsgräns:</strong></label>
-        <input type="number" id="customDeduction" placeholder="Ange valfritt avdrag">
-    </div>
-</div>
 
             <!-- Knapp för att visa eller dölja facklig tid/lön-sektionen -->
             <button type="button" id="toggleUnionSection" class="btn btn-secondary">Fackligt</button>
