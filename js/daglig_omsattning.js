@@ -149,6 +149,10 @@ showRevenueButton.addEventListener('click', async () => {
     const [year, month] = selectedMonth.split('-').map(Number);
     console.log(`Visar data för månad: ${year}-${month}`);
 
+    // Visa popupen
+    document.getElementById('popup').classList.remove('hidden');
+    document.getElementById('popup').classList.add('show');
+
     // Hämta data från Firebase
     const q = query(
         collection(db, "revenues"),
